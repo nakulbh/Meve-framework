@@ -6,8 +6,10 @@ from phase2_verification import execute_phase_2
 from phase3_fallback import execute_phase_3
 from phase4_prioritization import execute_phase_4
 from phase5_budgeting import execute_phase_5
-from typing import Dict, Tuple
-import numpy as np
+from typing import Dict, Tuple, List
+import json
+import os
+from tqdm import tqdm
 
 class MeVeEngine:
     """Orchestrates the five-phase MeVe pipeline."""
@@ -20,9 +22,8 @@ class MeVeEngine:
     def run(self, query_text: str) -> str:
         
         # 0. Initialize and Vectorize Query
-        # In a real system, the query would be vectorized here
-        query_vector = np.random.rand(768).tolist() 
-        query = Query(text=query_text, vector=query_vector)
+        # Let Phase 1 handle the query vectorization with proper dimensions
+        query = Query(text=query_text, vector=None)
         print(f"\n--- Running MeVe Pipeline for Query: '{query_text}' ---\n")
 
         # --- Phase 1: Initial Retrieval (kNN Search) ---
@@ -61,69 +62,138 @@ class MeVeEngine:
         # In a full RAG system, the LLM would now generate the answer using this context.
         return final_context_string
 
-# ----------------- SIMULATION SETUP -----------------
+# ----------------- REAL DATA LOADING -----------------
 
-def setup_simulation_data() -> Tuple[Dict[str, ContextChunk], Dict[str, ContextChunk]]:
-    """Creates a simulated vector store and BM25 index."""
+def chunk_text(text: str, chunk_size: int = 100) -> List[str]:
+    """Split text into chunks of approximately chunk_size words."""
+    words = text.split()
+    chunks = []
     
-    # 1. Simulate Knowledge Base Chunks
-    # Chunks 1-3 are highly relevant to the query "Eiffel Tower"
-    # Chunks 4-6 are semantically similar (Paris/architecture) but less factually relevant.
-    # Chunks 7-10 are general and will simulate high redundancy or low verification scores.
+    for i in range(0, len(words), chunk_size):
+        chunk = ' '.join(words[i:i + chunk_size])
+        chunks.append(chunk)
     
-    chunks = {
-        "doc1": ContextChunk(content="The Eiffel Tower, finished in 1889, stands 330 meters tall.", doc_id="doc1", embedding=None),
-        "doc2": ContextChunk(content="It was built by Gustave Eiffel for the 1889 World's Fair in Paris, France.", doc_id="doc2", embedding=None),
-        "doc3": ContextChunk(content="The tower is the most visited paid monument in the world.", doc_id="doc3", embedding=None),
-        "doc4": ContextChunk(content="The Pantheon is a neo-classical church also located in Paris.", doc_id="doc4", embedding=None),
-        "doc5": ContextChunk(content="Architecture trends in the late 19th century favored wrought iron construction.", doc_id="doc5", embedding=None),
-        "doc6": ContextChunk(content="France is known for its museums and historic landmarks.", doc_id="doc6", embedding=None),
-        "doc7": ContextChunk(content="A primary goal of MeVe is context efficiency and control.", doc_id="doc7", embedding=None),
-        "doc8": ContextChunk(content="MeVe uses a modular decomposition of the RAG pipeline.", doc_id="doc8", embedding=None),
-        "doc9": ContextChunk(content="The computational complexity scales linearly with the number of candidates k.", doc_id="doc9", embedding=None),
-        "doc10": ContextChunk(content="Final context generation uses a greedy packing algorithm.", doc_id="doc10", embedding=None),
-    }
+    return chunks
+
+def load_hotpotqa_data(data_dir: str = "data", max_examples: int = 100) -> Tuple[Dict[str, ContextChunk], List[Dict]]:
+    """Load HotpotQA data and create context chunks."""
+    print(f"Loading HotpotQA data from {data_dir}...")
     
-    # The vector store and BM25 index are the same content but accessed differently
+    # Try to load training data
+    train_file = os.path.join(data_dir, "hotpot_train_v1.1.json")
+    dev_file = os.path.join(data_dir, "hotpot_dev_distractor_v1.json")
+    
+    data_file = train_file if os.path.exists(train_file) else dev_file
+    
+    if not os.path.exists(data_file):
+        raise FileNotFoundError(f"❌ No HotpotQA data found in {data_dir}. Please ensure you have either 'hotpot_train_v1.1.json' or 'hotpot_dev_distractor_v1.json' in the data directory.")
+    
+    print(f"📄 Loading from {data_file}")
+    
+    with open(data_file, 'r', encoding='utf-8') as f:
+        hotpot_data = json.load(f)
+    
+    # Limit examples for faster processing
+    if max_examples:
+        hotpot_data = hotpot_data[:max_examples]
+    
+    chunks = {}
+    questions = []
+    
+    for i, example in enumerate(tqdm(hotpot_data, desc="Processing HotpotQA")):
+        # Extract question info
+        questions.append({
+            'id': example.get('_id', f'hotpot_{i}'),
+            'question': example['question'],
+            'answer': example['answer'],
+            'type': example.get('type', ''),
+            'level': example.get('level', '')
+        })
+        
+        # Process context paragraphs into chunks
+        context_paragraphs = example.get('context', [])
+        
+        for para_idx, context_item in enumerate(context_paragraphs):
+            if isinstance(context_item, list) and len(context_item) >= 2:
+                title = context_item[0]
+                sentences = context_item[1]
+                
+                # Join sentences into paragraph
+                if isinstance(sentences, list):
+                    paragraph_text = ' '.join(sentences)
+                else:
+                    paragraph_text = str(sentences)
+                
+                if len(paragraph_text.strip()) > 50:
+                    doc_id = f"hotpot_{i}_{para_idx}"
+                    content = f"{title}: {paragraph_text}"
+                    
+                    chunk = ContextChunk(
+                        content=content,
+                        doc_id=doc_id,
+                        embedding=None
+                    )
+                    chunks[doc_id] = chunk
+    
+    print(f"✅ Loaded {len(chunks)} chunks and {len(questions)} questions from HotpotQA")
+    return chunks, questions
+
+
+def setup_meve_data(data_dir: str = "data", max_examples: int = 100) -> Tuple[Dict[str, ContextChunk], Dict[str, ContextChunk], List[Dict]]:
+    """Load HotpotQA data and create vector store and BM25 index for MeVe framework."""
+    
+    # Load HotpotQA data
+    chunks, questions = load_hotpotqa_data(data_dir, max_examples)
+    
+    # Use the same chunks for both vector store and BM25 index
+    # Both phases access the same knowledge base but with different retrieval methods
     vector_store = chunks
     bm25_index = chunks
     
-    return vector_store, bm25_index
+    return vector_store, bm25_index, questions
 
 # ----------------- EXECUTION -----------------
 
 if __name__ == "__main__":
     
-    # Setup data and configuration
-    vector_store, bm25_index = setup_simulation_data()
+    print("🚀 MeVe Framework with Real HotpotQA Data")
+    print("=" * 50)
     
-    # [cite_start]Configuration based on the paper's parameters [cite: 134]
+    # Setup data and configuration
+    vector_store, bm25_index, questions = setup_meve_data(data_dir="data", max_examples=50)
+    print(f"📊 Loaded knowledge base with {len(vector_store)} chunks")
+    
+    # Use questions from the dataset
+    sample_questions = [q['question'] for q in questions[:3]]
+    
+    # Configuration based on the MeVe paper
     config = MeVeConfig(
-        k_init=5,           # Initial k-search candidates
-        tau_relevance=0.5, # Verification threshold (τ)
-        n_min=3,             # Minimum verified docs to avoid fallback (Nmin)
+        k_init=10,           # Initial k-search candidates (increased for real data)
+        tau_relevance=0.3,   # Lower threshold for real cross-encoder scores
+        n_min=3,             # Minimum verified docs to avoid fallback
         theta_redundancy=0.85, # Redundancy threshold
-        t_max=100           # Small token budget for demonstration
+        t_max=200           # Larger token budget for real content
     )
     
-    # --- SCENARIO 1: Success (Minimal Fallback Needed) ---
-    # The query is designed to hit the highly-scored chunks (doc1-3)
-    query_a = "What is the building material and height of the Eiffel Tower?"
-    engine_a = MeVeEngine(config, vector_store, bm25_index)
-    final_context_a = engine_a.run(query_a)
-    print("\n--------------------------------------------------------------")
-    print(f"Scenario 1 (Expected: Verification successful, Fallback SKIPPED) finished.")
-    print("--------------------------------------------------------------")
-
-    # --- SCENARIO 2: Failure (Fallback REQUIRED) ---
-    # The query is general and will likely get poor relevance scores (e.g., hitting doc7-10)
-    # This simulates semantic drift or a low relevance core.
-    query_b = "Tell me about MeVe's architectural features and complexity."
+    print(f"\n🔧 MeVe Configuration:")
+    print(f"   • k_init: {config.k_init}")
+    print(f"   • tau_relevance: {config.tau_relevance}")
+    print(f"   • n_min: {config.n_min}")
+    print(f"   • t_max: {config.t_max}")
     
-    # To force the fallback, we must change the Phase 2 simulation logic (in phase_2_verification.py)
-    # For this demonstration, we rely on the generic scores being low for this query.
-    engine_b = MeVeEngine(config, vector_store, bm25_index)
-    final_context_b = engine_b.run(query_b)
-    print("\n--------------------------------------------------------------")
-    print(f"Scenario 2 (Expected: Verification fails, Fallback TRIGGERED) finished.")
-    print("--------------------------------------------------------------")
+    # Test with real questions
+    for i, query_text in enumerate(sample_questions, 1):
+        print(f"\n{'='*60}")
+        print(f"🔍 QUERY {i}: {query_text}")
+        print(f"{'='*60}")
+        
+        engine = MeVeEngine(config, vector_store, bm25_index)
+        final_context = engine.run(query_text)
+        
+        print(f"\n📋 Summary for Query {i}:")
+        print(f"   • Final context length: {len(final_context)} characters")
+        print(f"   • Query: {query_text[:60]}...")
+    
+    print(f"\n🎉 MeVe pipeline testing completed!")
+    print(f"💡 Successfully processed {len(sample_questions)} real HotpotQA questions through all 5 phases.")
+    print(f"📊 Knowledge base contains {len(vector_store)} context chunks from HotpotQA dataset.")
