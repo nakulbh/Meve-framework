@@ -14,22 +14,22 @@ Query → kNN Search → Verify → [Fallback?] → Prioritize → Budget → Re
 block-beta
     columns 5
     
-    Query["� Query Input"]
+    Query["Query Input"]
     
     space
-    VectorDB[("� Vector Store")]
-    BM25DB[("🗃️ BM25 Index")]
+    VectorDB[("Vector Store")]
+    BM25DB[("BM25 Index")]
     space
     
-    Phase1["�🔍 Phase 1<br/>kNN Search<br/>k_init=5"]
-    Phase2["✅ Phase 2<br/>Verification<br/>τ ≥ 0.5"]
-    Decision{"🤔 Decision<br/>|chunks| < n_min?"}
-    Phase3["🔄 Phase 3<br/>BM25 Fallback"]
-    Combine["📋 Combine<br/>Contexts"]
+    Phase1["Phase 1<br/>kNN Search<br/>k_init=5"]
+    Phase2["Phase 2<br/>Verification<br/>τ ≥ 0.5"]
+    Decision{"Decision<br/>|chunks| < n_min?"}
+    Phase3["Phase 3<br/>BM25 Fallback"]
+    Combine["Combine<br/>Contexts"]
     
-    Phase4["⚡ Phase 4<br/>Prioritization<br/>Remove Duplicates"]
-    Phase5["� Phase 5<br/>Token Budget<br/>t_max=100"]
-    Output["✨ Final Context<br/>for LLM"]
+    Phase4["Phase 4<br/>Prioritization<br/>Remove Duplicates"]
+    Phase5["Phase 5<br/>Token Budget<br/>t_max=100"]
+    Output["Final Context<br/>for LLM"]
     
     Query --> Phase1
     VectorDB --> Phase1
@@ -58,11 +58,11 @@ block-beta
 
 ## How It Works
 
-1. **🔍 Phase 1 - kNN Search**: Find similar chunks using vector search
-2. **✅ Phase 2 - Verify**: Check if chunks are actually relevant  
-3. **🔄 Phase 3 - Fallback**: If not enough good chunks, try BM25 search
-4. **⚡ Phase 4 - Prioritize**: Remove duplicates, rank by importance
-5. **💰 Phase 5 - Budget**: Pack best chunks within token limit
+1. **Phase 1 - kNN Search**: Find similar chunks using vector search
+2. **Phase 2 - Verify**: Check if chunks are actually relevant  
+3. **Phase 3 - Fallback**: If not enough good chunks, try BM25 search
+4. **Phase 4 - Prioritize**: Remove duplicates, rank by importance
+5. **Phase 5 - Budget**: Pack best chunks within token limit
 
 ## Key Settings
 
@@ -88,11 +88,11 @@ print(result)
 
 ## What Makes It Smart
 
-- ✅ **Quality First**: Only keeps relevant chunks
-- 🔄 **Backup Plan**: Falls back to BM25 if vector search fails
-- 🚫 **No Duplicates**: Removes redundant information  
-- 💰 **Budget Aware**: Fits within token limits
-- ⚡ **Fast**: Efficient pipeline design
+- **Quality First**: Only keeps relevant chunks
+- **Backup Plan**: Falls back to BM25 if vector search fails
+- **No Duplicates**: Removes redundant information  
+- **Budget Aware**: Fits within token limits
+- **Fast**: Efficient pipeline design
 
 ## Usage
 
