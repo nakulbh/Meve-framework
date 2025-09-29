@@ -43,7 +43,7 @@ class MeVeEngine:
             combined_context.extend(fallback_chunks)
             print(f"Total Combined Context Chunks: {len(combined_context)}")
         else:
-            print(f"\n--- Condition Not Met: |C_ver| ({len(verified_chunks)}) >= N_min ({self.config.n_min}). Skipping Fallback ---")
+            print(f"\n--- Condition Not Met: |C_ver| ({len(verified_chunks)}) > N_min ({self.config.n_min}). Skipping Fallback ---")
         
         if not combined_context:
             return "Error: No context could be retrieved or verified."
