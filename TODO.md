@@ -1,0 +1,4 @@
+- [] Compare with normal RAG
+- [] improve LOGS
+- [] save logs and time for reference
+- [] Get a big RAG DATA
