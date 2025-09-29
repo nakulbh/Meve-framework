@@ -5,8 +5,8 @@ from phase1_knn import execute_phase_1
 from phase2_verification import execute_phase_2
 from phase3_fallback import execute_phase_3
 from phase4_prioritization import execute_phase_4
-from phase5_budgetin import execute_phase_5
-from typing import Dict, List, Tuple
+from phase5_budgeting import execute_phase_5
+from typing import Dict, Tuple
 import numpy as np
 
 class MeVeEngine:
@@ -72,16 +72,16 @@ def setup_simulation_data() -> Tuple[Dict[str, ContextChunk], Dict[str, ContextC
     # Chunks 7-10 are general and will simulate high redundancy or low verification scores.
     
     chunks = {
-        "doc1": ContextChunk(content="The Eiffel Tower, finished in 1889, stands 330 meters tall.", doc_id="doc1", embedding=np.random.rand(768).tolist()),
-        "doc2": ContextChunk(content="It was built by Gustave Eiffel for the 1889 World's Fair in Paris, France.", doc_id="doc2", embedding=np.random.rand(768).tolist()),
-        "doc3": ContextChunk(content="The tower is the most visited paid monument in the world.", doc_id="doc3", embedding=np.random.rand(768).tolist()),
-        "doc4": ContextChunk(content="The Pantheon is a neo-classical church also located in Paris.", doc_id="doc4", embedding=np.random.rand(768).tolist()),
-        "doc5": ContextChunk(content="Architecture trends in the late 19th century favored wrought iron construction.", doc_id="doc5", embedding=np.random.rand(768).tolist()),
-        "doc6": ContextChunk(content="France is known for its museums and historic landmarks.", doc_id="doc6", embedding=np.random.rand(768).tolist()),
-        "doc7": ContextChunk(content="A primary goal of MeVe is context efficiency and control.", doc_id="doc7", embedding=np.random.rand(768).tolist()),
-        "doc8": ContextChunk(content="MeVe uses a modular decomposition of the RAG pipeline.", doc_id="doc8", embedding=np.random.rand(768).tolist()),
-        "doc9": ContextChunk(content="The computational complexity scales linearly with the number of candidates k.", doc_id="doc9", embedding=np.random.rand(768).tolist()),
-        "doc10": ContextChunk(content="Final context generation uses a greedy packing algorithm.", doc_id="doc10", embedding=np.random.rand(768).tolist()),
+        "doc1": ContextChunk(content="The Eiffel Tower, finished in 1889, stands 330 meters tall.", doc_id="doc1", embedding=None),
+        "doc2": ContextChunk(content="It was built by Gustave Eiffel for the 1889 World's Fair in Paris, France.", doc_id="doc2", embedding=None),
+        "doc3": ContextChunk(content="The tower is the most visited paid monument in the world.", doc_id="doc3", embedding=None),
+        "doc4": ContextChunk(content="The Pantheon is a neo-classical church also located in Paris.", doc_id="doc4", embedding=None),
+        "doc5": ContextChunk(content="Architecture trends in the late 19th century favored wrought iron construction.", doc_id="doc5", embedding=None),
+        "doc6": ContextChunk(content="France is known for its museums and historic landmarks.", doc_id="doc6", embedding=None),
+        "doc7": ContextChunk(content="A primary goal of MeVe is context efficiency and control.", doc_id="doc7", embedding=None),
+        "doc8": ContextChunk(content="MeVe uses a modular decomposition of the RAG pipeline.", doc_id="doc8", embedding=None),
+        "doc9": ContextChunk(content="The computational complexity scales linearly with the number of candidates k.", doc_id="doc9", embedding=None),
+        "doc10": ContextChunk(content="Final context generation uses a greedy packing algorithm.", doc_id="doc10", embedding=None),
     }
     
     # The vector store and BM25 index are the same content but accessed differently

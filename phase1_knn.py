@@ -2,28 +2,64 @@
 
 from meve_data import ContextChunk, Query, MeVeConfig
 from typing import List, Optional, Dict
-# Assume an indexed knowledge base (vector_store) is available
-# In a real system, this would interact with FAISS [cite: 317] or an equivalent
+import numpy as np
+import faiss
+from sentence_transformers import SentenceTransformer
 
 def execute_phase_1(query: Query, config: MeVeConfig, vector_store: Dict[str, ContextChunk]) -> List[ContextChunk]:
     """
     Phase 1: Preliminary Candidate Extraction (kNN Search).
-    Retrieves the k_init closest candidates based on dense similarity.
+    Retrieves the k_init closest candidates based on dense similarity using FAISS.
     """
     print(f"--- Phase 1: Initial Retrieval (kNN={config.k_init}) ---")
     
+    # Initialize sentence transformer for query encoding if needed
     if not query.vector:
-        # Simulate query vectorization
-        print("Simulating query vectorization...")
-        query.vector = [0.1] * 768  # Using 768 dimensions as per the paper [cite: 332]
-
-    # *Simulated kNN Search*
-    # In practice, this would use FAISS/HNSW to search vector_store using query.vector
-    # and return the top k_init document IDs.
+        print("Encoding query using sentence transformer...")
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+        query.vector = model.encode(query.text).tolist()
     
-    # We simulate retrieving the first k_init chunks from the store for simplicity
+    # Prepare embeddings for FAISS search
     all_chunks = list(vector_store.values())
-    initial_candidates = all_chunks[:config.k_init]
     
-    print(f"Retrieved {len(initial_candidates)} initial candidates (C_init)[cite: 84].")
+    # Ensure all chunks have embeddings
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    embeddings = []
+    chunk_ids = []
+    
+    for chunk in all_chunks:
+        if chunk.embedding is None:
+            # Generate embedding if not present
+            chunk.embedding = model.encode(chunk.content).tolist()
+        embeddings.append(chunk.embedding)
+        chunk_ids.append(chunk.doc_id)
+    
+    # Convert to numpy array for FAISS
+    embeddings_array = np.array(embeddings, dtype=np.float32)
+    query_vector = np.array([query.vector], dtype=np.float32)
+    
+    # Build FAISS index
+    dimension = embeddings_array.shape[1]
+    index = faiss.IndexFlatIP(dimension)  # Inner product (cosine similarity)
+    
+    # Normalize vectors for cosine similarity
+    faiss.normalize_L2(embeddings_array)
+    faiss.normalize_L2(query_vector)
+    
+    # Add embeddings to index
+    index.add(embeddings_array)
+    
+    # Perform kNN search
+    k = min(config.k_init, len(all_chunks))  # Don't search for more than available
+    distances, indices = index.search(query_vector, k)
+    
+    # Retrieve the top-k chunks
+    initial_candidates = []
+    for i, idx in enumerate(indices[0]):
+        chunk = all_chunks[idx]
+        # Store similarity score (convert from distance)
+        chunk.relevance_score = float(distances[0][i])
+        initial_candidates.append(chunk)
+    
+    print(f"Retrieved {len(initial_candidates)} initial candidates using FAISS kNN search.")
     return initial_candidates
