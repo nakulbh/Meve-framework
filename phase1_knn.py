@@ -1,4 +1,10 @@
 # phase_1_knn.py
+# --- CODE TO BE REPLACED BY A VECTOR DB CLIENT CALL ---
+# 1. Embeddings preparation (moving this to an offline process)
+# 2. Building FAISS index (handled by the vector DB service)
+# 3. Normalizing vectors (handled by the vector DB or client)
+# 4. index.add(embeddings_array) (handled by the vector DB in the ingestion pipeline)
+# 5. index.search(query_vector, k) (replaced by a simple .query() method)
 
 from meve_data import ContextChunk, Query, MeVeConfig
 from typing import List, Optional, Dict
