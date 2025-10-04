@@ -1,21 +1,100 @@
 # phase_1_knn.py
-# --- CODE TO BE REPLACED BY A VECTOR DB CLIENT CALL ---
-# 1. Embeddings preparation (moving this to an offline process)
-# 2. Building FAISS index (handled by the vector DB service)
-# 3. Normalizing vectors (handled by the vector DB or client)
-# 4. index.add(embeddings_array) (handled by the vector DB in the ingestion pipeline)
-# 5. index.search(query_vector, k) (replaced by a simple .query() method)
+# Vector DB Client Implementation - replaces FAISS operations
 
 from meve_data import ContextChunk, Query, MeVeConfig
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 import numpy as np
-import faiss
 from sentence_transformers import SentenceTransformer
+import chromadb
+from chromadb.config import Settings
+
+class VectorDBClient:
+    """
+    ChromaDB-powered Vector DB client that replaces FAISS operations.
+    Uses ChromaDB for optimized vector similarity search.
+    """
+    
+    def __init__(self, chunks: List[ContextChunk]):
+        """Initialize with chunks and create ChromaDB collection."""
+        self.chunks = chunks
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        self._setup_chromadb()
+        self._populate_collection()
+    
+    def _setup_chromadb(self):
+        """Initialize ChromaDB client and collection."""
+        # Create in-memory ChromaDB client for fast access
+        self.chroma_client = chromadb.Client(Settings(
+            is_persistent=False,  # In-memory for speed
+            anonymized_telemetry=False
+        ))
+        
+        # Create or get collection with sentence transformer embedding function
+        self.collection = self.chroma_client.get_or_create_collection(
+            name="meve_chunks",
+            embedding_function=chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(
+                model_name='all-MiniLM-L6-v2'
+            )
+        )
+    
+    def _populate_collection(self):
+        """Add all chunks to ChromaDB collection."""
+        documents = []
+        metadatas = []
+        ids = []
+        
+        for i, chunk in enumerate(self.chunks):
+            documents.append(chunk.content)
+            metadatas.append({
+                'doc_id': chunk.doc_id,
+                'chunk_index': i
+            })
+            ids.append(f"chunk_{i}")
+        
+        # Add all documents to collection in batch
+        self.collection.add(
+            documents=documents,
+            metadatas=metadatas,
+            ids=ids
+        )
+    
+    def query(self, query_vector: List[float], k: int) -> Tuple[List[float], List[int]]:
+        """
+        ChromaDB-powered .query() method that replaces FAISS index.search().
+        
+        Args:
+            query_vector: Query embedding vector
+            k: Number of similar chunks to retrieve
+            
+        Returns:
+            Tuple of (similarities, indices) matching FAISS interface
+        """
+        # Limit k to available chunks
+        k = min(k, len(self.chunks))
+        
+        # Query ChromaDB using pre-computed embedding
+        results = self.collection.query(
+            query_embeddings=[query_vector],
+            n_results=k
+        )
+        
+        # Extract results
+        distances = results['distances'][0]  # ChromaDB returns nested lists
+        metadatas = results['metadatas'][0]
+        
+        # Convert distances to similarities (ChromaDB returns L2 distances)
+        # Convert L2 distance to cosine similarity approximation
+        similarities = [1.0 / (1.0 + dist) for dist in distances]
+        
+        # Extract chunk indices from metadata
+        indices = [meta['chunk_index'] for meta in metadatas]
+        
+        return similarities, indices
 
 def execute_phase_1(query: Query, config: MeVeConfig, vector_store: Dict[str, ContextChunk]) -> List[ContextChunk]:
     """
     Phase 1: Preliminary Candidate Extraction (kNN Search).
-    Retrieves the k_init closest candidates based on dense similarity using FAISS.
+    Retrieves the k_init closest candidates based on dense similarity using Vector DB client.
     """
     print(f"--- Phase 1: Initial Retrieval (kNN={config.k_init}) ---")
     
@@ -25,47 +104,23 @@ def execute_phase_1(query: Query, config: MeVeConfig, vector_store: Dict[str, Co
         model = SentenceTransformer('all-MiniLM-L6-v2')
         query.vector = model.encode(query.text).tolist()
     
-    # Prepare embeddings for FAISS search
+    # Get all chunks from vector store
     all_chunks = list(vector_store.values())
     
-    # Ensure all chunks have embeddings
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    embeddings = []
-    chunk_ids = []
+    # Initialize ChromaDB Vector DB client (replaces FAISS operations)
+    vector_db = VectorDBClient(all_chunks)
     
-    for chunk in all_chunks:
-        if chunk.embedding is None:
-            # Generate embedding if not present
-            chunk.embedding = model.encode(chunk.content).tolist()
-        embeddings.append(chunk.embedding)
-        chunk_ids.append(chunk.doc_id)
-    
-    # Convert to numpy array for FAISS
-    embeddings_array = np.array(embeddings, dtype=np.float32)
-    query_vector = np.array([query.vector], dtype=np.float32)
-    
-    # Build FAISS index
-    dimension = embeddings_array.shape[1]
-    index = faiss.IndexFlatIP(dimension)  # Inner product (cosine similarity)
-    
-    # Normalize vectors for cosine similarity
-    faiss.normalize_L2(embeddings_array)
-    faiss.normalize_L2(query_vector)
-    
-    # Add embeddings to index
-    index.add(embeddings_array)
-    
-    # Perform kNN search
+    # Perform kNN search using vector DB client
     k = min(config.k_init, len(all_chunks))  # Don't search for more than available
-    distances, indices = index.search(query_vector, k)
+    similarities, indices = vector_db.query(query.vector, k)
     
     # Retrieve the top-k chunks
     initial_candidates = []
-    for i, idx in enumerate(indices[0]):
+    for i, idx in enumerate(indices):
         chunk = all_chunks[idx]
-        # Store similarity score (convert from distance)
-        chunk.relevance_score = float(distances[0][i])
+        # Store similarity score
+        chunk.relevance_score = float(similarities[i])
         initial_candidates.append(chunk)
     
-    print(f"Retrieved {len(initial_candidates)} initial candidates using FAISS kNN search.")
+    print(f"Retrieved {len(initial_candidates)} initial candidates using Vector DB client.")
     return initial_candidates
