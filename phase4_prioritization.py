@@ -4,6 +4,7 @@ from meve_data import ContextChunk, Query, MeVeConfig
 from typing import List
 import numpy as np
 from sentence_transformers import SentenceTransformer
+from color_utils import phase_header, success_message
 
 # Initialize sentence transformer model (same as Phase 1)
 _model = None
@@ -73,32 +74,46 @@ def execute_phase_4(query: Query, combined_context: List[ContextChunk], config: 
     Phase 4: Enhanced Context Prioritization with MMR and Advanced Redundancy Detection.
     Implements sophisticated relevance-diversity tradeoff as per MeVe paper.
     """
-    print(f"--- Phase 4: Enhanced Context Prioritization (Redundancy={config.theta_redundancy}) ---")
+    print(f"{phase_header(4, 'STARTING')} - Enhanced Context Prioritization (θ_redundancy={config.theta_redundancy})")
+    print(f"[PHASE 4] Received {len(combined_context)} chunks from previous phases")
     
     if not combined_context:
-        print("No context chunks to prioritize.")
+        print("[PHASE 4] WARNING: No context chunks to prioritize")
+        print("[PHASE 4] COMPLETED - Returning empty list")
         return []
     
     # Get sentence transformer model
+    print("[PHASE 4] Loading sentence transformer for embedding generation...")
     model = get_sentence_transformer()
     
     # 1. Generate embeddings for chunks that don't have them
-    for chunk in combined_context:
-        if not chunk.embedding:
+    chunks_without_embeddings = [c for c in combined_context if not c.embedding]
+    if chunks_without_embeddings:
+        print(f"[PHASE 4] Generating embeddings for {len(chunks_without_embeddings)} chunks...")
+        for chunk in chunks_without_embeddings:
             chunk.embedding = model.encode(chunk.content).tolist()
+    else:
+        print("[PHASE 4] All chunks already have embeddings")
     
     # 2. Generate query embedding if not present
     if not query.vector:
+        print("[PHASE 4] Generating query embedding...")
         query.vector = model.encode(query.text).tolist()
+    else:
+        print("[PHASE 4] Using existing query embedding")
     
     # 3. Enhanced selection using MMR-style algorithm
     remaining_chunks = combined_context.copy()
     prioritized_context: List[ContextChunk] = []
     
+    print(f"[PHASE 4] Starting MMR-based selection with λ=0.6...")
     # Start with highest relevance chunk
     remaining_chunks.sort(key=lambda c: c.relevance_score, reverse=True)
+    print(f"[PHASE 4] Initial ranking by relevance: {[f'{c.relevance_score:.3f}' for c in remaining_chunks[:5]]}...")
     
+    iteration = 0
     while remaining_chunks:
+        iteration += 1
         best_chunk = None
         best_score = float('-inf')
         
@@ -111,7 +126,10 @@ def execute_phase_4(query: Query, combined_context: List[ContextChunk], config: 
                 best_chunk = candidate
         
         if best_chunk is None:
+            print("[PHASE 4] No more candidates available")
             break
+        
+        print(f"[PHASE 4] Iteration {iteration}: Evaluating chunk {best_chunk.doc_id} (MMR={best_score:.3f})")
         
         # Check for redundancy using enhanced overlap detection
         is_redundant = False
@@ -119,26 +137,31 @@ def execute_phase_4(query: Query, combined_context: List[ContextChunk], config: 
             overlap = calculate_information_overlap(best_chunk, selected_chunk)
             
             if overlap >= config.theta_redundancy:
-                print(f"  Removing redundant chunk (overlap={overlap:.3f} >= {config.theta_redundancy})")
+                print(f"[PHASE 4]   → REDUNDANT: overlap={overlap:.3f} >= {config.theta_redundancy} with {selected_chunk.doc_id}")
                 is_redundant = True
                 break
         
         # Add to selected if not redundant
         if not is_redundant:
             prioritized_context.append(best_chunk)
-            print(f"  Selected chunk: MMR={best_score:.3f}, relevance={best_chunk.relevance_score:.3f}")
-            print(f"    Content: '{best_chunk.content[:60]}...'")
+            print(f"[PHASE 4]   → SELECTED: MMR={best_score:.3f}, relevance={best_chunk.relevance_score:.3f}")
+            print(f"[PHASE 4]     Content: '{best_chunk.content[:50]}...'")
         
         # Remove from remaining candidates
         remaining_chunks.remove(best_chunk)
         
         # Stop if we have enough diverse chunks (heuristic)
         if len(prioritized_context) >= min(10, len(combined_context)):
+            print(f"[PHASE 4] Reached maximum chunks limit ({min(10, len(combined_context))})")
             break
     
     removed_count = len(combined_context) - len(prioritized_context)
-    print(f"Enhanced prioritization complete: {len(prioritized_context)} chunks selected")
-    print(f"  Removed {removed_count} redundant/low-diversity chunks")
-    print(f"  Average relevance: {np.mean([c.relevance_score for c in prioritized_context]):.3f}")
+    print(f"{success_message('[PHASE 4] COMPLETED')} - Selected {len(prioritized_context)} chunks from {len(combined_context)} candidates")
+    print(f"[PHASE 4] Removed {removed_count} redundant/low-diversity chunks")
+    if prioritized_context:
+        avg_relevance = np.mean([c.relevance_score for c in prioritized_context])
+        print(f"[PHASE 4] Average relevance score: {avg_relevance:.3f}")
+        print(f"[PHASE 4] Best relevance score: {max(c.relevance_score for c in prioritized_context):.3f}")
+    print(f"{phase_header(4, 'HANDING OFF')} to Phase 5 (Budgeting)\n")
     
     return prioritized_context

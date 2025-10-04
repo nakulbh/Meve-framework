@@ -3,6 +3,7 @@
 from meve_data import ContextChunk, Query, MeVeConfig
 from typing import List, Tuple
 from transformers import AutoTokenizer
+from color_utils import phase_header, success_message
 
 # Initialize tokenizer (using GPT-2 as mentioned in the paper)
 _tokenizer = None
@@ -14,7 +15,7 @@ def get_tokenizer():
         try:
             _tokenizer = AutoTokenizer.from_pretrained('gpt2')
         except Exception as e:
-            print(f"Warning: Could not load GPT-2 tokenizer ({e}). Using fallback word-based tokenization.")
+            print(f"[PHASE 5] Warning: Could not load GPT-2 tokenizer ({e}). Using fallback word-based tokenization.")
             _tokenizer = None
     return _tokenizer
 
@@ -146,15 +147,28 @@ def execute_phase_5(prioritized_context: List[ContextChunk], config: MeVeConfig)
     Phase 5: Enhanced Token Budgeting with Intelligent Text Processing.
     Implements advanced greedy packing with sentence boundary respect and summarization.
     """
-    print(f"--- Phase 5: Enhanced Token Budgeting (Tmax={config.t_max}) ---")
+    print(f"{phase_header(5, 'STARTING')} - Enhanced Token Budgeting (T_max={config.t_max})")
+    print(f"[PHASE 5] Received {len(prioritized_context)} prioritized chunks from Phase 4")
     
     if not prioritized_context:
-        print("No prioritized context to budget.")
+        print("[PHASE 5] WARNING: No prioritized context to budget")
+        print("[PHASE 5] COMPLETED - Returning empty context")
         return "", []
+    
+    # Initialize tokenizer
+    print("[PHASE 5] Initializing tokenizer for accurate token counting...")
+    tokenizer = get_tokenizer()
+    if tokenizer:
+        print("[PHASE 5] Using GPT-2 tokenizer for accurate token counting")
+    else:
+        print("[PHASE 5] Using fallback word-based tokenization")
     
     final_chunks: List[ContextChunk] = []
     current_token_count = 0
     separator_tokens = 5  # Reserve tokens for formatting
+    
+    print(f"[PHASE 5] Starting greedy packing algorithm...")
+    print(f"[PHASE 5] Budget: {config.t_max} tokens, Reserved for formatting: {separator_tokens} tokens")
     
     # Enhanced greedy packing with intelligent processing
     for i, chunk in enumerate(prioritized_context):
@@ -163,8 +177,11 @@ def execute_phase_5(prioritized_context: List[ContextChunk], config: MeVeConfig)
         
         available_tokens = config.t_max - current_token_count - separator_tokens
         
+        print(f"[PHASE 5] Processing chunk {i+1}/{len(prioritized_context)}: {chunk.doc_id}")
+        print(f"[PHASE 5]   Original size: {chunk_tokens} tokens, Available: {available_tokens} tokens")
+        
         if available_tokens <= 0:
-            print(f"  Budget exhausted. Stopping at chunk {i+1}")
+            print(f"[PHASE 5]   BUDGET EXHAUSTED - Stopping at chunk {i+1}")
             break
         
         # Try intelligent processing
@@ -179,18 +196,19 @@ def execute_phase_5(prioritized_context: List[ContextChunk], config: MeVeConfig)
                 current_token_count += actual_tokens
                 
                 status = "truncated" if processed_chunk.doc_id.endswith("_truncated") else "full"
-                print(f"  Including chunk {i+1} ({status}): {actual_tokens} tokens, total={current_token_count}/{config.t_max}")
+                print(f"[PHASE 5]   → INCLUDED ({status}): {actual_tokens} tokens, total={current_token_count}/{config.t_max}")
                 
                 if status == "truncated":
-                    print(f"    Original: {chunk_tokens} tokens → Processed: {actual_tokens} tokens")
+                    print(f"[PHASE 5]     Truncated: {chunk_tokens} tokens → {actual_tokens} tokens")
             else:
-                print(f"  Skipping chunk {i+1}: would exceed budget even after processing")
+                print(f"[PHASE 5]   → REJECTED: would exceed budget even after processing")
                 break
         else:
-            print(f"  Skipping chunk {i+1}: insufficient space for meaningful content")
+            print(f"[PHASE 5]   → SKIPPED: insufficient space for meaningful content")
             continue
     
     # Format final context with proper structure
+    print(f"[PHASE 5] Formatting final context with proper structure...")
     if final_chunks:
         final_context_string = format_context_coherently(final_chunks)
         final_token_count = count_tokens(final_context_string)
@@ -198,9 +216,16 @@ def execute_phase_5(prioritized_context: List[ContextChunk], config: MeVeConfig)
         final_context_string = ""
         final_token_count = 0
     
-    print(f"Enhanced token budgeting complete:")
-    print(f"  Final context: {final_token_count} tokens (Budget={config.t_max})")
-    print(f"  Efficiency: {(final_token_count/config.t_max)*100:.1f}% of budget used")
-    print(f"  Included {len(final_chunks)} out of {len(prioritized_context)} chunks")
+    print(f"{success_message('[PHASE 5] COMPLETED')} - Token budgeting results:")
+    print(f"[PHASE 5]   Final context: {final_token_count} tokens (Budget={config.t_max})")
+    print(f"[PHASE 5]   Efficiency: {(final_token_count/config.t_max)*100:.1f}% of budget used")
+    print(f"[PHASE 5]   Included {len(final_chunks)} out of {len(prioritized_context)} chunks")
+    
+    if final_chunks:
+        avg_relevance = sum(c.relevance_score for c in final_chunks) / len(final_chunks)
+        print(f"[PHASE 5]   Average relevance in final context: {avg_relevance:.3f}")
+        print(f"[PHASE 5]   Final context length: {len(final_context_string)} characters")
+    
+    print(f"{success_message('[PHASE 5] PIPELINE COMPLETED')} - Final context ready for LLM\n")
     
     return final_context_string, final_chunks

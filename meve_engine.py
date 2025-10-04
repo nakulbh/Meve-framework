@@ -10,6 +10,7 @@ from typing import Dict, Tuple, List
 import json
 import os
 from tqdm import tqdm
+from color_utils import engine_header, success_message
 
 class MeVeEngine:
     """Orchestrates the five-phase MeVe pipeline."""
@@ -21,42 +22,61 @@ class MeVeEngine:
 
     def run(self, query_text: str) -> str:
         
+        print(f"\n{engine_header('====== STARTING PIPELINE ======')}")
+        print(f"[MEVE ENGINE] Query: '{query_text}' ({len(query_text)} chars)")
+        print(f"[MEVE ENGINE] Config: k_init={self.config.k_init}, tau={self.config.tau_relevance}, n_min={self.config.n_min}, theta={self.config.theta_redundancy}, t_max={self.config.t_max}")
+        print(f"[MEVE ENGINE] Knowledge base: {len(self.vector_store)} chunks")
+        
         # 0. Initialize and Vectorize Query
         # Let Phase 1 handle the query vectorization with proper dimensions
         query = Query(text=query_text, vector=None)
-        print(f"\n--- Running MeVe Pipeline for Query: '{query_text}' ---\n")
 
         # --- Phase 1: Initial Retrieval (kNN Search) ---
+        print(f"\n{engine_header('EXECUTING Phase 1...')}")
         initial_candidates = execute_phase_1(query, self.config, self.vector_store)
 
         # --- Phase 2: Relevance Verification (Cross-Encoder) ---
+        print(f"{engine_header('EXECUTING Phase 2...')}")
         verified_chunks = execute_phase_2(query, initial_candidates, self.config)
         
         combined_context = verified_chunks
 
         # --- Conditional Phase 3: Fallback Retrieval (BM25) ---
         # Logic: If |C_ver| < N_min, trigger fallback
+        print(f"{engine_header('EVALUATING fallback condition...')}")
         if len(verified_chunks) < self.config.n_min:
-            print(f"\n--- Condition Met: |C_ver| ({len(verified_chunks)}) < N_min ({self.config.n_min}). Triggering Fallback ---")
+            print(f"[MEVE ENGINE] CONDITION MET: |C_ver| ({len(verified_chunks)}) < N_min ({self.config.n_min}) - Triggering fallback")
+            print(f"{engine_header('EXECUTING Phase 3...')}")
             fallback_chunks = execute_phase_3(query, self.bm25_index)
             
             # Combine Context: C_all = C_ver U C_fallback
             combined_context.extend(fallback_chunks)
-            print(f"Total Combined Context Chunks: {len(combined_context)}")
+            print(f"[MEVE ENGINE] COMBINED context: {len(verified_chunks)} verified + {len(fallback_chunks)} fallback = {len(combined_context)} total")
         else:
-            print(f"\n--- Condition Not Met: |C_ver| ({len(verified_chunks)}) >= N_min ({self.config.n_min}). Skipping Fallback ---")
+            print(f"[MEVE ENGINE] CONDITION NOT MET: |C_ver| ({len(verified_chunks)}) >= N_min ({self.config.n_min}) - Skipping fallback")
+            print(f"[MEVE ENGINE] SKIPPING Phase 3 - Using only verified chunks")
         
         if not combined_context:
+            print(f"[MEVE ENGINE] ERROR: No context could be retrieved or verified")
             return "Error: No context could be retrieved or verified."
 
         # --- Phase 4: Context Prioritization (Relevance/Redundancy) ---
+        print(f"{engine_header('EXECUTING Phase 4...')}")
         prioritized_context = execute_phase_4(query, combined_context, self.config)
 
         # --- Phase 5: Token Budgeting (Greedy Packing) ---
+        print(f"{engine_header('EXECUTING Phase 5...')}")
         final_context_string, final_chunks = execute_phase_5(prioritized_context, self.config)
         
         # Final Output (The context passed to the LLM)
-        print("\n================= FINAL CONTEXT FOR LLM ==================")
+        print(f"{success_message('[MEVE ENGINE] ====== PIPELINE COMPLETED ======')}")
+        print(f"[MEVE ENGINE] Summary:")
+        print(f"[MEVE ENGINE]   Phase 1: {len(initial_candidates)} initial candidates")
+        print(f"[MEVE ENGINE]   Phase 2: {len(verified_chunks)} verified chunks")
+        print(f"[MEVE ENGINE]   Phase 3: {'EXECUTED' if len(verified_chunks) < self.config.n_min else 'SKIPPED'}")
+        print(f"[MEVE ENGINE]   Phase 4: {len(prioritized_context)} prioritized chunks")
+        print(f"[MEVE ENGINE]   Phase 5: {len(final_chunks)} final chunks ({len(final_context_string)} chars)")
+        print(f"\n================= FINAL CONTEXT FOR LLM ==================")
         print(f"Total Final Chunks: {len(final_chunks)}")
         print(f"Context Snippet: {final_context_string[:200]}...")
         # In a full RAG system, the LLM would now generate the answer using this context.

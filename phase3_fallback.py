@@ -4,6 +4,7 @@ from meve_data import ContextChunk, Query, MeVeConfig
 from typing import List, Dict
 import math
 from collections import defaultdict, Counter
+from color_utils import phase_header, success_message
 # Assume a BM25 index of the knowledge base is available
 # (e.g., built using a library like 'rank_bm25' [cite: 319, 356])
 
@@ -74,19 +75,26 @@ def execute_phase_3(query: Query, bm25_index: Dict[str, ContextChunk]) -> List[C
     Phase 3: Fallback Retrieval (BM25 Okapi).
     Retrieves additional documents based on BM25 Okapi scoring.
     """
-    print("--- Phase 3: Fallback Retrieval (BM25 Okapi) ---")
+    print(f"{phase_header(3, 'STARTING')} - Fallback Retrieval (BM25 Okapi)")
+    print("[PHASE 3] Activated because Phase 2 verification yielded insufficient candidates")
     
     query_terms = query.text.lower().split()
-    print(f"Searching using query terms: {query_terms}")
+    print(f"[PHASE 3] Query terms for BM25: {query_terms} ({len(query_terms)} terms)")
     
     # Get all chunks and build corpus statistics
     all_chunks = list(bm25_index.values())
+    print(f"[PHASE 3] Building corpus statistics from {len(all_chunks)} chunks...")
     corpus_stats = build_corpus_stats(all_chunks)
+    print(f"[PHASE 3] Corpus stats: {corpus_stats['doc_count']} docs, avg_length={corpus_stats['avg_doc_length']:.1f}")
     
     # Calculate BM25 scores for each chunk
     scored_chunks = []
+    print(f"[PHASE 3] Calculating BM25 scores for all chunks...")
     
-    for chunk in all_chunks:
+    for i, chunk in enumerate(all_chunks):
+        if (i + 1) % 100 == 0 or i == len(all_chunks) - 1:
+            print(f"[PHASE 3] Processing chunk {i+1}/{len(all_chunks)}...")
+        
         document_terms = chunk.content.lower().split()
         
         # Calculate BM25 Okapi score
@@ -98,12 +106,23 @@ def execute_phase_3(query: Query, bm25_index: Dict[str, ContextChunk]) -> List[C
             chunk.relevance_score = normalized_score
             scored_chunks.append(chunk)
     
+    print(f"[PHASE 3] Found {len(scored_chunks)} chunks with positive BM25 scores")
+    
     # Sort by BM25 score and take top 5
     scored_chunks.sort(key=lambda x: x.relevance_score, reverse=True)
     fallback_candidates = scored_chunks[:5]
 
-    print(f"Retrieved {len(fallback_candidates)} fallback chunks using BM25 Okapi.")
-    for i, chunk in enumerate(fallback_candidates):
-        print(f"  Fallback {i+1}: BM25 Score={chunk.relevance_score:.3f}, Content: {chunk.content[:50]}...")
+    print(f"{success_message('[PHASE 3] COMPLETED')} - Retrieved {len(fallback_candidates)} fallback chunks using BM25")
+    if fallback_candidates:
+        scores = [chunk.relevance_score for chunk in fallback_candidates]
+        print(f"[PHASE 3] Best BM25 score: {max(scores):.3f}")
+        print(f"[PHASE 3] Average BM25 score: {sum(scores)/len(scores):.3f}")
+        
+        print(f"[PHASE 3] Top fallback candidates:")
+        for i, chunk in enumerate(fallback_candidates):
+            print(f"[PHASE 3]   {i+1}. {chunk.doc_id}: BM25={chunk.relevance_score:.3f} | {chunk.content[:40]}...")
+    else:
+        print("[PHASE 3] WARNING: No fallback candidates found")
     
+    print(f"{phase_header(3, 'HANDING OFF')} to Phase 4 (Prioritization)\n")
     return fallback_candidates
