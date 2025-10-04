@@ -1,63 +1,38 @@
-.PHONY: help setup install run clean test lint format
+.PHONY: help setup install run clean test lint format start
 
-# Default target
 help:
-	@echo "MeVe Framework - Available commands:"
+	@echo "MeVe Framework Commands:"
 	@echo ""
-	@echo "  make setup       - Initial project setup (install uv if needed)"
-	@echo "  make install     - Install dependencies using uv"
-	@echo "  make run         - Run the MeVe engine"
-	@echo "  make clean       - Clean up cache and temporary files"
-	@echo "  make test        - Run tests (if available)"
-	@echo "  make lint        - Run linting checks"
-	@echo "  make format      - Format code with black"
-	@echo ""
+	@echo "  make setup     - Install uv and dependencies"
+	@echo "  make install   - Install dependencies"
+	@echo "  make run       - Run MeVe engine"
+	@echo "  make clean     - Remove cache files"
+	@echo "  make test      - Run tests"
+	@echo "  make lint      - Run linting"
+	@echo "  make format    - Format code"
+	@echo "  make start     - Setup and run"
 
-# Setup: Install uv package manager if not present
 setup:
-	@echo "Setting up MeVe Framework..."
-	@which uv > /dev/null || (echo "Installing uv..." && curl -LsSf https://astral.sh/uv/install.sh | sh)
-	@echo "Running initial install..."
+	@which uv > /dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
 	@$(MAKE) install
-	@echo "Setup complete!"
 
-# Install dependencies
 install:
-	@echo "Installing dependencies with uv..."
 	uv sync
-	@echo "Dependencies installed!"
 
-# Run the main MeVe engine
 run:
-	@echo "Running MeVe Framework..."
 	uv run meve_engine.py
 
-# Clean up cache and temporary files
 clean:
-	@echo "Cleaning up..."
-	rm -rf __pycache__
-	rm -rf services/__pycache__
-	rm -rf .pytest_cache
-	rm -rf .mypy_cache
-	rm -rf *.pyc
-	rm -rf */*.pyc
-	rm -rf chroma-data/*.sqlite3-*
-	@echo "Cleanup complete!"
+	rm -rf __pycache__ services/__pycache__ .pytest_cache .mypy_cache
+	rm -f *.pyc */*.pyc chroma-data/*.sqlite3-*
 
-# Run tests (placeholder for future test suite)
 test:
-	@echo "Running tests..."
-	uv run pytest tests/ -v || echo "No tests found yet"
+	uv run pytest tests/ -v
 
-# Lint code
 lint:
-	@echo "Linting code..."
-	uv run ruff check . || echo "Install ruff for linting: uv add --dev ruff"
+	uv run ruff check .
 
-# Format code
 format:
-	@echo "Formatting code..."
-	uv run black . || echo "Install black for formatting: uv add --dev black"
+	uv run black .
 
-# Quick start: setup and run
 start: setup run
