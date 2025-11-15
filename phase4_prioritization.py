@@ -18,30 +18,44 @@ def get_sentence_transformer():
 
 def cosine_similarity(a: List[float], b: List[float]) -> float:
     """Calculate cosine similarity between two vectors."""
-    dot_product = np.dot(a, b)
-    norm_a = np.linalg.norm(a)
-    norm_b = np.linalg.norm(b)
-    if norm_a == 0 or norm_b == 0:
-        return 0.0
-    return dot_product / (norm_a * norm_b)
+    # Convert to numpy arrays to ensure consistent handling
+    a_array = np.array(a)
+    b_array = np.array(b)
 
-def calculate_mmr_score(candidate_chunk: ContextChunk, query: Query, selected_chunks: List[ContextChunk], 
+    dot_product = np.dot(a_array, b_array)
+    norm_a = np.linalg.norm(a_array)
+    norm_b = np.linalg.norm(b_array)
+
+    # Use float() to ensure we get scalar values for comparison
+    if float(norm_a) == 0.0 or float(norm_b) == 0.0:
+        return 0.0
+
+    return float(dot_product / (norm_a * norm_b))
+
+def calculate_mmr_score(candidate_chunk: ContextChunk, query: Query, selected_chunks: List[ContextChunk],
                         lambda_param: float = 0.5) -> float:
     """
     Calculate Maximal Marginal Relevance (MMR) score for enhanced diversity.
     MMR = λ * Relevance(chunk, query) - (1-λ) * max_similarity(chunk, selected_chunks)
     """
     relevance_score = candidate_chunk.relevance_score
-    
+
     if not selected_chunks:
         return relevance_score
-    
+
+    # Check if candidate has embedding
+    if not candidate_chunk.embedding:
+        return relevance_score
+
     # Calculate maximum similarity with already selected chunks
     max_similarity = 0.0
     for selected_chunk in selected_chunks:
+        # Skip if selected chunk has no embedding
+        if not selected_chunk.embedding:
+            continue
         similarity = cosine_similarity(candidate_chunk.embedding, selected_chunk.embedding)
         max_similarity = max(max_similarity, similarity)
-    
+
     # MMR formula: balance relevance and diversity
     mmr_score = lambda_param * relevance_score - (1 - lambda_param) * max_similarity
     return mmr_score
@@ -52,22 +66,29 @@ def calculate_information_overlap(chunk1: ContextChunk, chunk2: ContextChunk) ->
     Combines cosine similarity with content-based overlap analysis.
     """
     # 1. Semantic similarity (embedding-based)
-    semantic_sim = cosine_similarity(chunk1.embedding, chunk2.embedding)
-    
+    semantic_sim = 0.0
+    if chunk1.embedding and chunk2.embedding:
+        semantic_sim = cosine_similarity(chunk1.embedding, chunk2.embedding)
+
     # 2. Content overlap (token-based)
     tokens1 = set(chunk1.content.lower().split())
     tokens2 = set(chunk2.content.lower().split())
-    
+
     if not tokens1 or not tokens2:
         content_overlap = 0.0
     else:
         intersection = len(tokens1.intersection(tokens2))
         union = len(tokens1.union(tokens2))
         content_overlap = intersection / union if union > 0 else 0.0
-    
+
     # 3. Combined overlap score (weighted average)
-    overlap_score = 0.7 * semantic_sim + 0.3 * content_overlap
-    return overlap_score
+    # If no embeddings, rely more on content overlap
+    if chunk1.embedding and chunk2.embedding:
+        overlap_score = 0.7 * semantic_sim + 0.3 * content_overlap
+    else:
+        overlap_score = content_overlap
+
+    return float(overlap_score)
 
 def execute_phase_4(query: Query, combined_context: List[ContextChunk], config: MeVeConfig) -> List[ContextChunk]:
     """

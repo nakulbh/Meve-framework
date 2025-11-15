@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "meve-rag": {
+      "command": "/Users/nakulbhardwaj/.local/bin/uv",
+      "args": [
+        "--directory",
+        "/Users/nakulbhardwaj/Developer/PersonalProjects/Meve-framework",
+        "run",
+        "meve_mcp_server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/Users/nakulbhardwaj/Developer/PersonalProjects/Meve-framework",
+        "CHROMADB_URL": "http://localhost:8000"
+      }
+    }
+  }
+}
