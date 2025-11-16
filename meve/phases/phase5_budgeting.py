@@ -5,6 +5,9 @@ from typing import List, Tuple
 from transformers import AutoTokenizer
 
 from meve.core.models import ContextChunk, MeVeConfig
+from meve.utils import get_logger
+
+logger = get_logger(__name__)
 
 # Initialize tokenizer (using GPT-2 as mentioned in the paper)
 _tokenizer = None
@@ -17,8 +20,8 @@ def get_tokenizer():
         try:
             _tokenizer = AutoTokenizer.from_pretrained("gpt2")
         except Exception as e:
-            print(
-                f"Warning: Could not load GPT-2 tokenizer ({e}). Using fallback word-based tokenization."
+            logger.warning(
+                f"Could not load GPT-2 tokenizer ({e}). Using fallback word-based tokenization."
             )
             _tokenizer = None
     return _tokenizer
@@ -157,10 +160,10 @@ def execute_phase_5(
     Phase 5: Enhanced Token Budgeting with Intelligent Text Processing.
     Implements advanced greedy packing with sentence boundary respect and summarization.
     """
-    print(f"--- Phase 5: Enhanced Token Budgeting (Tmax={config.t_max}) ---")
+    logger.info(f"--- Phase 5: Enhanced Token Budgeting (Tmax={config.t_max}) ---")
 
     if not prioritized_context:
-        print("No prioritized context to budget.")
+        logger.warning("No prioritized context to budget.")
         return "", []
 
     final_chunks: List[ContextChunk] = []
@@ -175,7 +178,7 @@ def execute_phase_5(
         available_tokens = config.t_max - current_token_count - separator_tokens
 
         if available_tokens <= 0:
-            print(f"  Budget exhausted. Stopping at chunk {i+1}")
+            logger.debug(f"  Budget exhausted. Stopping at chunk {i+1}")
             break
 
         # Try intelligent processing
@@ -190,19 +193,19 @@ def execute_phase_5(
                 current_token_count += actual_tokens
 
                 status = "truncated" if processed_chunk.doc_id.endswith("_truncated") else "full"
-                print(
+                logger.debug(
                     f"  Including chunk {i+1} ({status}): {actual_tokens} tokens, total={current_token_count}/{config.t_max}"
                 )
 
                 if status == "truncated":
-                    print(
+                    logger.debug(
                         f"    Original: {chunk_tokens} tokens → Processed: {actual_tokens} tokens"
                     )
             else:
-                print(f"  Skipping chunk {i+1}: would exceed budget even after processing")
+                logger.debug(f"  Skipping chunk {i+1}: would exceed budget even after processing")
                 break
         else:
-            print(f"  Skipping chunk {i+1}: insufficient space for meaningful content")
+            logger.debug(f"  Skipping chunk {i+1}: insufficient space for meaningful content")
             continue
 
     # Format final context with proper structure
@@ -213,9 +216,9 @@ def execute_phase_5(
         final_context_string = ""
         final_token_count = 0
 
-    print("Enhanced token budgeting complete:")
-    print(f"  Final context: {final_token_count} tokens (Budget={config.t_max})")
-    print(f"  Efficiency: {(final_token_count/config.t_max)*100:.1f}% of budget used")
-    print(f"  Included {len(final_chunks)} out of {len(prioritized_context)} chunks")
+    logger.info("Enhanced token budgeting complete:")
+    logger.info(f"  Final context: {final_token_count} tokens (Budget={config.t_max})")
+    logger.info(f"  Efficiency: {(final_token_count/config.t_max)*100:.1f}% of budget used")
+    logger.info(f"  Included {len(final_chunks)} out of {len(prioritized_context)} chunks")
 
     return final_context_string, final_chunks

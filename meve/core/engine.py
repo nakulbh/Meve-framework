@@ -12,6 +12,9 @@ from meve.phases.phase2_verification import execute_phase_2
 from meve.phases.phase3_fallback import execute_phase_3
 from meve.phases.phase4_prioritization import execute_phase_4
 from meve.phases.phase5_budgeting import execute_phase_5
+from meve.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class MeVeEngine:
@@ -32,7 +35,7 @@ class MeVeEngine:
         # 0. Initialize and Vectorize Query
         # Let Phase 1 handle the query vectorization with proper dimensions
         query = Query(text=query_text, vector=None)
-        print(f"\n--- Running MeVe Pipeline for Query: '{query_text}' ---\n")
+        logger.info(f"\n--- Running MeVe Pipeline for Query: '{query_text}' ---\n")
 
         # --- Phase 1: Initial Retrieval (kNN Search) ---
         initial_candidates = execute_phase_1(query, self.config, self.vector_store)
@@ -45,16 +48,16 @@ class MeVeEngine:
         # --- Conditional Phase 3: Fallback Retrieval (BM25) ---
         # Logic: If |C_ver| < N_min, trigger fallback
         if len(verified_chunks) < self.config.n_min:
-            print(
+            logger.info(
                 f"\n--- Condition Met: |C_ver| ({len(verified_chunks)}) < N_min ({self.config.n_min}). Triggering Fallback ---"
             )
             fallback_chunks = execute_phase_3(query, self.bm25_index)
 
             # Combine Context: C_all = C_ver U C_fallback
             combined_context.extend(fallback_chunks)
-            print(f"Total Combined Context Chunks: {len(combined_context)}")
+            logger.info(f"Total Combined Context Chunks: {len(combined_context)}")
         else:
-            print(
+            logger.info(
                 f"\n--- Condition Not Met: |C_ver| ({len(verified_chunks)}) >= N_min ({self.config.n_min}). Skipping Fallback ---"
             )
 
@@ -68,9 +71,9 @@ class MeVeEngine:
         final_context_string, final_chunks = execute_phase_5(prioritized_context, self.config)
 
         # Final Output (The context passed to the LLM)
-        print("\n================= FINAL CONTEXT FOR LLM ==================")
-        print(f"Total Final Chunks: {len(final_chunks)}")
-        print(f"Context Snippet: {final_context_string[:200]}...")
+        logger.info("\n================= FINAL CONTEXT FOR LLM ==================")
+        logger.info(f"Total Final Chunks: {len(final_chunks)}")
+        logger.info(f"Context Snippet: {final_context_string[:200]}...")
         # In a full RAG system, the LLM would now generate the answer using this context.
         return final_context_string
 
@@ -94,7 +97,7 @@ def load_hotpotqa_data(
     data_dir: str = "data", max_examples: int = 100
 ) -> Tuple[Dict[str, ContextChunk], List[Dict]]:
     """Load HotpotQA data and create context chunks."""
-    print(f"Loading HotpotQA data from {data_dir}...")
+    logger.info(f"Loading HotpotQA data from {data_dir}...")
 
     # Try to load training data
     train_file = os.path.join(data_dir, "hotpot_train_v1.1.json")
@@ -107,7 +110,7 @@ def load_hotpotqa_data(
             f"❌ No HotpotQA data found in {data_dir}. Please ensure you have either 'hotpot_train_v1.1.json' or 'hotpot_dev_distractor_v1.json' in the data directory."
         )
 
-    print(f"📄 Loading from {data_file}")
+    logger.info(f"📄 Loading from {data_file}")
 
     with open(data_file, "r", encoding="utf-8") as f:
         hotpot_data = json.load(f)
@@ -153,7 +156,7 @@ def load_hotpotqa_data(
                     chunk = ContextChunk(content=content, doc_id=doc_id, embedding=None)
                     chunks[doc_id] = chunk
 
-    print(f"✅ Loaded {len(chunks)} chunks and {len(questions)} questions from HotpotQA")
+    logger.success(f"Loaded {len(chunks)} chunks and {len(questions)} questions from HotpotQA")
     return chunks, questions
 
 
@@ -177,12 +180,12 @@ def setup_meve_data(
 
 if __name__ == "__main__":
 
-    print("🚀 MeVe Framework with Real HotpotQA Data")
-    print("=" * 50)
+    logger.info("🚀 MeVe Framework with Real HotpotQA Data")
+    logger.info("=" * 50)
 
     # Setup data and configuration
     vector_store, bm25_index, questions = setup_meve_data(data_dir="data", max_examples=50)
-    print(f"📊 Loaded knowledge base with {len(vector_store)} chunks")
+    logger.info(f"📊 Loaded knowledge base with {len(vector_store)} chunks")
 
     # Use questions from the dataset
     sample_questions = [q["question"] for q in questions[:3]]
@@ -196,27 +199,29 @@ if __name__ == "__main__":
         t_max=200,  # Larger token budget for real content
     )
 
-    print("\n🔧 MeVe Configuration:")
-    print(f"   • k_init: {config.k_init}")
-    print(f"   • tau_relevance: {config.tau_relevance}")
-    print(f"   • n_min: {config.n_min}")
-    print(f"   • t_max: {config.t_max}")
+    logger.info("\n🔧 MeVe Configuration:")
+    logger.info(f"   • k_init: {config.k_init}")
+    logger.info(f"   • tau_relevance: {config.tau_relevance}")
+    logger.info(f"   • n_min: {config.n_min}")
+    logger.info(f"   • t_max: {config.t_max}")
 
     # Test with real questions
     for i, query_text in enumerate(sample_questions, 1):
-        print(f"\n{'='*60}")
-        print(f"🔍 QUERY {i}: {query_text}")
-        print(f"{'='*60}")
+        logger.info(f"\n{'='*60}")
+        logger.info(f"🔍 QUERY {i}: {query_text}")
+        logger.info(f"{'='*60}")
 
         engine = MeVeEngine(config, vector_store, bm25_index)
         final_context = engine.run(query_text)
 
-        print(f"\n📋 Summary for Query {i}:")
-        print(f"   • Final context length: {len(final_context)} characters")
-        print(f"   • Query: {query_text[:60]}...")
+        logger.info(f"\n📋 Summary for Query {i}:")
+        logger.info(f"   • Final context length: {len(final_context)} characters")
+        logger.info(f"   • Query: {query_text[:60]}...")
 
-    print("\n🎉 MeVe pipeline testing completed!")
-    print(
+    logger.success("\n🎉 MeVe pipeline testing completed!")
+    logger.info(
         f"💡 Successfully processed {len(sample_questions)} real HotpotQA questions through all 5 phases."
     )
-    print(f"📊 Knowledge base contains {len(vector_store)} context chunks from HotpotQA dataset.")
+    logger.info(
+        f"📊 Knowledge base contains {len(vector_store)} context chunks from HotpotQA dataset."
+    )

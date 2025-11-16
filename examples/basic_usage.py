@@ -3,6 +3,9 @@ Basic Usage Example for MeVe Framework
 """
 
 from meve import ContextChunk, MeVeConfig, MeVeEngine
+from meve.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def simple_example():
@@ -24,8 +27,8 @@ def simple_example():
     # Run query
     result = engine.run("Where is the Eiffel Tower?")
 
-    print("Query Result:")
-    print(result)
+    logger.info("Query Result:")
+    logger.info(result)
 
 
 if __name__ == "__main__":

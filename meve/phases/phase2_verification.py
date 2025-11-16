@@ -6,6 +6,9 @@ import torch
 from sentence_transformers import CrossEncoder
 
 from meve.core.models import ContextChunk, MeVeConfig, Query
+from meve.utils import get_logger
+
+logger = get_logger(__name__)
 
 # Load cross-encoder model for relevance scoring
 cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
@@ -30,7 +33,7 @@ def get_relevance_score(query_text: str, chunk_content: str) -> float:
         return normalized_score
 
     except Exception as e:
-        print(f"Error in cross-encoder scoring: {e}")
+        logger.error(f"Error in cross-encoder scoring: {e}", error=e)
         # Fallback to simple similarity check
         return simulate_cross_encoder_fallback(query_text, chunk_content)
 
@@ -51,10 +54,10 @@ def execute_phase_2(
     Phase 2: Relevance Verification (Cross-Encoder).
     Filters candidates based on the relevance threshold (tau)[cite: 75, 90].
     """
-    print(f"--- Phase 2: Relevance Verification (Tau={config.tau_relevance}) ---")
+    logger.info(f"--- Phase 2: Relevance Verification (Tau={config.tau_relevance}) ---")
 
     if not initial_candidates:
-        print("No initial candidates to verify.")
+        logger.warning("No initial candidates to verify.")
         return []
 
     verified_chunks: List[ContextChunk] = []
@@ -64,13 +67,13 @@ def execute_phase_2(
         score = get_relevance_score(query.text, chunk.content)
         chunk.relevance_score = score
 
-        print(f"Chunk {chunk.doc_id}: relevance_score={score:.3f}")
+        logger.debug(f"Chunk {chunk.doc_id}: relevance_score={score:.3f}")
 
         if score >= config.tau_relevance:
             verified_chunks.append(chunk)
-            print(f"  → VERIFIED (score >= {config.tau_relevance})")
+            logger.debug(f"  → VERIFIED (score >= {config.tau_relevance})")
         else:
-            print(f"  → FILTERED OUT (score < {config.tau_relevance})")
+            logger.debug(f"  → FILTERED OUT (score < {config.tau_relevance})")
 
-    print(f"Verified {len(verified_chunks)} out of {len(initial_candidates)} chunks (C_ver).")
+    logger.info(f"Verified {len(verified_chunks)} out of {len(initial_candidates)} chunks (C_ver).")
     return verified_chunks

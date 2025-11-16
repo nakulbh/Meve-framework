@@ -5,6 +5,9 @@ from collections import Counter, defaultdict
 from typing import Dict, List
 
 from meve.core.models import ContextChunk, Query
+from meve.utils import get_logger
+
+logger = get_logger(__name__)
 
 # Assume a BM25 index of the knowledge base is available
 # (e.g., built using a library like 'rank_bm25' [cite: 319, 356])
@@ -81,10 +84,10 @@ def execute_phase_3(query: Query, bm25_index: Dict[str, ContextChunk]) -> List[C
     Phase 3: Fallback Retrieval (BM25 Okapi).
     Retrieves additional documents based on BM25 Okapi scoring.
     """
-    print("--- Phase 3: Fallback Retrieval (BM25 Okapi) ---")
+    logger.info("--- Phase 3: Fallback Retrieval (BM25 Okapi) ---")
 
     query_terms = query.text.lower().split()
-    print(f"Searching using query terms: {query_terms}")
+    logger.debug(f"Searching using query terms: {query_terms}")
 
     # Get all chunks and build corpus statistics
     all_chunks = list(bm25_index.values())
@@ -109,9 +112,9 @@ def execute_phase_3(query: Query, bm25_index: Dict[str, ContextChunk]) -> List[C
     scored_chunks.sort(key=lambda x: x.relevance_score, reverse=True)
     fallback_candidates = scored_chunks[:5]
 
-    print(f"Retrieved {len(fallback_candidates)} fallback chunks using BM25 Okapi.")
+    logger.info(f"Retrieved {len(fallback_candidates)} fallback chunks using BM25 Okapi.")
     for i, chunk in enumerate(fallback_candidates):
-        print(
+        logger.debug(
             f"  Fallback {i+1}: BM25 Score={chunk.relevance_score:.3f}, Content: {chunk.content[:50]}..."
         )
 

@@ -6,6 +6,9 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from meve.core.models import ContextChunk, MeVeConfig, Query
+from meve.utils import get_logger
+
+logger = get_logger(__name__)
 
 # Initialize sentence transformer model (same as Phase 1)
 _model = None
@@ -86,12 +89,12 @@ def execute_phase_4(
     Phase 4: Enhanced Context Prioritization with MMR and Advanced Redundancy Detection.
     Implements sophisticated relevance-diversity tradeoff as per MeVe paper.
     """
-    print(
+    logger.info(
         f"--- Phase 4: Enhanced Context Prioritization (Redundancy={config.theta_redundancy}) ---"
     )
 
     if not combined_context:
-        print("No context chunks to prioritize.")
+        logger.warning("No context chunks to prioritize.")
         return []
 
     # Get sentence transformer model
@@ -134,7 +137,7 @@ def execute_phase_4(
             overlap = calculate_information_overlap(best_chunk, selected_chunk)
 
             if overlap >= config.theta_redundancy:
-                print(
+                logger.debug(
                     f"  Removing redundant chunk (overlap={overlap:.3f} >= {config.theta_redundancy})"
                 )
                 is_redundant = True
@@ -143,10 +146,10 @@ def execute_phase_4(
         # Add to selected if not redundant
         if not is_redundant:
             prioritized_context.append(best_chunk)
-            print(
+            logger.debug(
                 f"  Selected chunk: MMR={best_score:.3f}, relevance={best_chunk.relevance_score:.3f}"
             )
-            print(f"    Content: '{best_chunk.content[:60]}...'")
+            logger.debug(f"    Content: '{best_chunk.content[:60]}...'")
 
         # Remove from remaining candidates
         remaining_chunks.remove(best_chunk)
@@ -156,8 +159,10 @@ def execute_phase_4(
             break
 
     removed_count = len(combined_context) - len(prioritized_context)
-    print(f"Enhanced prioritization complete: {len(prioritized_context)} chunks selected")
-    print(f"  Removed {removed_count} redundant/low-diversity chunks")
-    print(f"  Average relevance: {np.mean([c.relevance_score for c in prioritized_context]):.3f}")
+    logger.info(f"Enhanced prioritization complete: {len(prioritized_context)} chunks selected")
+    logger.info(f"  Removed {removed_count} redundant/low-diversity chunks")
+    logger.info(
+        f"  Average relevance: {np.mean([c.relevance_score for c in prioritized_context]):.3f}"
+    )
 
     return prioritized_context
