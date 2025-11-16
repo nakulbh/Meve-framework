@@ -2,33 +2,22 @@
 
 from typing import List, Tuple
 
-from transformers import AutoTokenizer
-
 from meve.core.models import ContextChunk, MeVeConfig
-from meve.utils import get_logger
+from meve.utils import get_logger, get_tokenizer
 
 logger = get_logger(__name__)
 
-# Initialize tokenizer (using GPT-2 as mentioned in the paper)
-_tokenizer = None
-
-
-def get_tokenizer():
-    """Get or initialize the tokenizer."""
-    global _tokenizer
-    if _tokenizer is None:
-        try:
-            _tokenizer = AutoTokenizer.from_pretrained("gpt2")
-        except Exception as e:
-            logger.warning(
-                f"Could not load GPT-2 tokenizer ({e}). Using fallback word-based tokenization."
-            )
-            _tokenizer = None
-    return _tokenizer
-
 
 def tokenize_text(text: str) -> List[str]:
-    """Tokenize text using proper tokenizer or fallback to word-based."""
+    """
+    Tokenize text using proper tokenizer or fallback to word-based.
+
+    Args:
+        text: Input text to tokenize
+
+    Returns:
+        List of token strings
+    """
     tokenizer = get_tokenizer()
 
     if tokenizer is not None:
@@ -41,7 +30,15 @@ def tokenize_text(text: str) -> List[str]:
 
 
 def count_tokens(text: str) -> int:
-    """Count tokens in text using proper tokenizer."""
+    """
+    Count tokens in text using proper tokenizer.
+
+    Args:
+        text: Input text to count tokens
+
+    Returns:
+        Number of tokens in the text
+    """
     tokenizer = get_tokenizer()
 
     if tokenizer is not None:
@@ -160,25 +157,29 @@ def execute_phase_5(
     Phase 5: Enhanced Token Budgeting with Intelligent Text Processing.
     Implements advanced greedy packing with sentence boundary respect and summarization.
     """
-    logger.info(f"--- Phase 5: Enhanced Token Budgeting (Tmax={config.t_max}) ---")
-
     if not prioritized_context:
-        logger.warning("No prioritized context to budget.")
+        logger.warning("Phase 5: No prioritized context to budget.")
         return "", []
 
     final_chunks: List[ContextChunk] = []
     current_token_count = 0
-    separator_tokens = 5  # Reserve tokens for formatting
+
+    # Calculate separator overhead: "Context N:\n" + "\n---\n" between chunks
+    # Rough estimate: 15 tokens per chunk for formatting
+    separator_tokens_per_chunk = 15
+    max_chunks_estimate = max(1, config.t_max // 100)  # Rough estimate of max chunks
+    total_separator_reserve = separator_tokens_per_chunk * max_chunks_estimate
 
     # Enhanced greedy packing with intelligent processing
     for i, chunk in enumerate(prioritized_context):
         chunk_tokens = count_tokens(chunk.content)
         chunk.token_count = chunk_tokens
 
-        available_tokens = config.t_max - current_token_count - separator_tokens
+        # Account for separator tokens in available budget
+        separator_overhead = separator_tokens_per_chunk
+        available_tokens = config.t_max - current_token_count - separator_overhead
 
         if available_tokens <= 0:
-            logger.debug(f"  Budget exhausted. Stopping at chunk {i+1}")
             break
 
         # Try intelligent processing
@@ -187,38 +188,33 @@ def execute_phase_5(
         if processed_chunk is not None:
             actual_tokens = processed_chunk.token_count
 
-            # Double-check we don't exceed budget
-            if current_token_count + actual_tokens + separator_tokens <= config.t_max:
+            # Double-check we don't exceed budget (including separator overhead)
+            if current_token_count + actual_tokens + separator_overhead <= config.t_max:
                 final_chunks.append(processed_chunk)
                 current_token_count += actual_tokens
-
-                status = "truncated" if processed_chunk.doc_id.endswith("_truncated") else "full"
-                logger.debug(
-                    f"  Including chunk {i+1} ({status}): {actual_tokens} tokens, total={current_token_count}/{config.t_max}"
-                )
-
-                if status == "truncated":
-                    logger.debug(
-                        f"    Original: {chunk_tokens} tokens → Processed: {actual_tokens} tokens"
-                    )
             else:
-                logger.debug(f"  Skipping chunk {i+1}: would exceed budget even after processing")
                 break
         else:
-            logger.debug(f"  Skipping chunk {i+1}: insufficient space for meaningful content")
             continue
 
     # Format final context with proper structure
     if final_chunks:
         final_context_string = format_context_coherently(final_chunks)
         final_token_count = count_tokens(final_context_string)
+
+        # Validate we didn't exceed budget
+        if final_token_count > config.t_max:
+            logger.warning(
+                f"Token budget exceeded: {final_token_count} > {config.t_max}. "
+                "Removing last chunk to fit budget."
+            )
+            # Remove chunks until we fit in budget
+            while final_chunks and final_token_count > config.t_max:
+                final_chunks.pop()
+                final_context_string = format_context_coherently(final_chunks)
+                final_token_count = count_tokens(final_context_string)
     else:
         final_context_string = ""
         final_token_count = 0
-
-    logger.info("Enhanced token budgeting complete:")
-    logger.info(f"  Final context: {final_token_count} tokens (Budget={config.t_max})")
-    logger.info(f"  Efficiency: {(final_token_count/config.t_max)*100:.1f}% of budget used")
-    logger.info(f"  Included {len(final_chunks)} out of {len(prioritized_context)} chunks")
 
     return final_context_string, final_chunks

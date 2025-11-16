@@ -3,27 +3,31 @@
 from typing import List
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
 from meve.core.models import ContextChunk, MeVeConfig, Query
-from meve.utils import get_logger
+from meve.utils import get_logger, get_sentence_transformer
 
 logger = get_logger(__name__)
 
-# Initialize sentence transformer model (same as Phase 1)
-_model = None
-
 
 def get_sentence_transformer():
-    """Get or initialize the sentence transformer model."""
-    global _model
-    if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model
+    """Get the sentence transformer model from the model manager."""
+    from meve.utils import get_sentence_transformer as _get_model
+
+    return _get_model()
 
 
 def cosine_similarity(a: List[float], b: List[float]) -> float:
-    """Calculate cosine similarity between two vectors."""
+    """
+    Calculate cosine similarity between two vectors.
+
+    Args:
+        a: First vector
+        b: Second vector
+
+    Returns:
+        Cosine similarity score between 0 and 1
+    """
     dot_product = np.dot(a, b)
     norm_a = np.linalg.norm(a)
     norm_b = np.linalg.norm(b)
@@ -89,21 +93,28 @@ def execute_phase_4(
     Phase 4: Enhanced Context Prioritization with MMR and Advanced Redundancy Detection.
     Implements sophisticated relevance-diversity tradeoff as per MeVe paper.
     """
-    logger.info(
-        f"--- Phase 4: Enhanced Context Prioritization (Redundancy={config.theta_redundancy}) ---"
-    )
-
     if not combined_context:
-        logger.warning("No context chunks to prioritize.")
+        logger.warning("Phase 4: No context chunks to prioritize.")
         return []
 
     # Get sentence transformer model
     model = get_sentence_transformer()
 
-    # 1. Generate embeddings for chunks that don't have them
-    for chunk in combined_context:
-        if not chunk.embedding:
-            chunk.embedding = model.encode(chunk.content).tolist()
+    # 1. Generate embeddings ONLY for chunks that don't have them
+    chunks_to_encode = []
+    chunk_indices = []
+
+    for i, chunk in enumerate(combined_context):
+        if not chunk.embedding or not isinstance(chunk.embedding, list):
+            chunks_to_encode.append(chunk.content)
+            chunk_indices.append(i)
+
+    # Batch encode all chunks that need embeddings
+    if chunks_to_encode:
+        logger.debug(f"Phase 4: Generating embeddings for {len(chunks_to_encode)} chunks")
+        embeddings = model.encode(chunks_to_encode)
+        for idx, embedding in zip(chunk_indices, embeddings):
+            combined_context[idx].embedding = embedding.tolist()
 
     # 2. Generate query embedding if not present
     if not query.vector:
@@ -120,9 +131,11 @@ def execute_phase_4(
         best_chunk = None
         best_score = float("-inf")
 
-        # Find chunk with best MMR score
+        # Find chunk with best MMR score using configurable lambda
         for candidate in remaining_chunks:
-            mmr_score = calculate_mmr_score(candidate, query, prioritized_context, lambda_param=0.6)
+            mmr_score = calculate_mmr_score(
+                candidate, query, prioritized_context, lambda_param=config.lambda_mmr
+            )
 
             if mmr_score > best_score:
                 best_score = mmr_score
@@ -137,19 +150,12 @@ def execute_phase_4(
             overlap = calculate_information_overlap(best_chunk, selected_chunk)
 
             if overlap >= config.theta_redundancy:
-                logger.debug(
-                    f"  Removing redundant chunk (overlap={overlap:.3f} >= {config.theta_redundancy})"
-                )
                 is_redundant = True
                 break
 
         # Add to selected if not redundant
         if not is_redundant:
             prioritized_context.append(best_chunk)
-            logger.debug(
-                f"  Selected chunk: MMR={best_score:.3f}, relevance={best_chunk.relevance_score:.3f}"
-            )
-            logger.debug(f"    Content: '{best_chunk.content[:60]}...'")
 
         # Remove from remaining candidates
         remaining_chunks.remove(best_chunk)
@@ -158,11 +164,7 @@ def execute_phase_4(
         if len(prioritized_context) >= min(10, len(combined_context)):
             break
 
-    removed_count = len(combined_context) - len(prioritized_context)
-    logger.info(f"Enhanced prioritization complete: {len(prioritized_context)} chunks selected")
-    logger.info(f"  Removed {removed_count} redundant/low-diversity chunks")
     logger.info(
-        f"  Average relevance: {np.mean([c.relevance_score for c in prioritized_context]):.3f}"
+        f"Phase 4: Prioritized {len(prioritized_context)} chunks from {len(combined_context)}"
     )
-
     return prioritized_context

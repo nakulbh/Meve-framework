@@ -37,10 +37,12 @@ class MeVeConfig:
         tau_relevance: float = 0.5,  # Phase 2: Relevance Threshold (τ) [cite: 352]
         n_min: int = 3,  # Phase 3: Minimum Verified Documents (Nmin) [cite: 353]
         theta_redundancy: float = 0.85,  # Phase 4: Redundancy Threshold (θredundancy) [cite: 354]
+        lambda_mmr: float = 0.6,  # Phase 4: MMR Lambda for relevance-diversity tradeoff
         t_max: int = 512,  # Phase 5: Token Budget (Tmax) [cite: 355]
     ):
         self.k_init = k_init
         self.tau_relevance = tau_relevance
         self.n_min = n_min
         self.theta_redundancy = theta_redundancy
+        self.lambda_mmr = lambda_mmr
         self.t_max = t_max

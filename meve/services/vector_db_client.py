@@ -8,9 +8,9 @@ from typing import List, Tuple, Optional
 
 import chromadb
 from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
 
 from meve.core.models import ContextChunk
+from meve.utils import get_sentence_transformer
 
 
 class VectorDBClient:
@@ -27,10 +27,10 @@ class VectorDBClient:
         collection_name: str = "meve_chunks",
         use_cloud: bool = False,
         cloud_config: Optional[dict] = None,
-        load_existing: bool = False
+        load_existing: bool = False,
     ):
         """Initialize with chunks and create/load ChromaDB collection."""
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.model = get_sentence_transformer()
         self.collection_name = collection_name
         self.is_persistent = is_persistent
         self.use_cloud = use_cloud
@@ -52,9 +52,9 @@ class VectorDBClient:
         if self.use_cloud:
             # Use ChromaDB Cloud
             self.chroma_client = chromadb.CloudClient(
-                api_key=self.cloud_config.get('api_key'),
-                tenant=self.cloud_config.get('tenant'),
-                database=self.cloud_config.get('database')
+                api_key=self.cloud_config.get("api_key"),
+                tenant=self.cloud_config.get("tenant"),
+                database=self.cloud_config.get("database"),
             )
         else:
             # Use local ChromaDB client
@@ -74,39 +74,46 @@ class VectorDBClient:
         """Load chunks from existing ChromaDB collection."""
         try:
             # Get all documents from the collection
-            results = self.collection.get(include=['documents', 'metadatas'])
+            results = self.collection.get(include=["documents", "metadatas"])
 
             self.chunks = []
-            for i, (doc_id, document, metadata) in enumerate(zip(
-                results.get('ids', []),
-                results.get('documents', []),
-                results.get('metadatas', [])
-            )):
+            for i, (doc_id, document, metadata) in enumerate(
+                zip(
+                    results.get("ids", []),
+                    results.get("documents", []),
+                    results.get("metadatas", []),
+                )
+            ):
                 # Create ContextChunk from stored data
                 chunk = ContextChunk(
                     content=document,
-                    doc_id=metadata.get('doc_id', f'doc_{i}') if metadata else f'doc_{i}'
+                    doc_id=metadata.get("doc_id", f"doc_{i}") if metadata else f"doc_{i}",
                 )
                 self.chunks.append(chunk)
-
-            print(f"Loaded {len(self.chunks)} chunks from existing collection '{self.collection_name}'")
 
         except Exception as e:
             raise ValueError(f"Failed to load existing collection '{self.collection_name}': {e}")
 
     def _populate_collection(self):
         """Add all chunks to ChromaDB collection."""
-        documents = []
-        metadatas = []
-        ids = []
+        try:
+            documents = []
+            metadatas = []
+            ids = []
 
-        for i, chunk in enumerate(self.chunks):
-            documents.append(chunk.content)
-            metadatas.append({"doc_id": chunk.doc_id, "chunk_index": i})
-            ids.append(f"chunk_{i}")
+            for i, chunk in enumerate(self.chunks):
+                documents.append(chunk.content)
+                metadatas.append({"doc_id": chunk.doc_id, "chunk_index": i})
+                ids.append(f"chunk_{i}")
 
-        # Add all documents to collection in batch
-        self.collection.add(documents=documents, metadatas=metadatas, ids=ids)
+            # Add all documents to collection in batch
+            if documents:
+                self.collection.add(documents=documents, metadatas=metadatas, ids=ids)
+            else:
+                raise ValueError("No documents to add to collection")
+
+        except Exception as e:
+            raise ValueError(f"Failed to populate collection '{self.collection_name}': {e}")
 
     def query(self, query_vector: List[float], k: int) -> Tuple[List[float], List[int]]:
         """
@@ -118,22 +125,32 @@ class VectorDBClient:
 
         Returns:
             Tuple of (similarities, indices) matching FAISS interface
+
+        Raises:
+            ValueError: If query fails or no chunks available
         """
-        # Limit k to available chunks
-        k = min(k, len(self.chunks))
+        try:
+            if not self.chunks:
+                raise ValueError("No chunks available in collection")
 
-        # Query ChromaDB using pre-computed embedding
-        results = self.collection.query(query_embeddings=[query_vector], n_results=k)
+            # Limit k to available chunks
+            k = min(k, len(self.chunks))
 
-        # Extract results
-        distances = results["distances"][0]  # ChromaDB returns nested lists
-        metadatas = results["metadatas"][0]
+            # Query ChromaDB using pre-computed embedding
+            results = self.collection.query(query_embeddings=[query_vector], n_results=k)
 
-        # Convert distances to similarities (ChromaDB returns L2 distances)
-        # Convert L2 distance to cosine similarity approximation
-        similarities = [1.0 / (1.0 + dist) for dist in distances]
+            # Extract results
+            distances = results["distances"][0]  # ChromaDB returns nested lists
+            metadatas = results["metadatas"][0]
 
-        # Extract chunk indices from metadata
-        indices = [meta["chunk_index"] for meta in metadatas]
+            # Convert distances to similarities (ChromaDB returns L2 distances)
+            # Convert L2 distance to cosine similarity approximation
+            similarities = [1.0 / (1.0 + dist) for dist in distances]
 
-        return similarities, indices
+            # Extract chunk indices from metadata
+            indices = [meta["chunk_index"] for meta in metadatas]
+
+            return similarities, indices
+
+        except Exception as e:
+            raise ValueError(f"Query failed: {e}")

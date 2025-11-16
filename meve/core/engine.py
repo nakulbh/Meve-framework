@@ -1,15 +1,16 @@
 import json
 import os
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from tqdm import tqdm
 
 from meve.core.models import ContextChunk, MeVeConfig, Query
 from meve.phases.phase1_knn import execute_phase_1
 from meve.phases.phase2_verification import execute_phase_2
-from meve.phases.phase3_fallback import execute_phase_3
+from meve.phases.phase3_fallback import execute_phase_3, build_corpus_stats
 from meve.phases.phase4_prioritization import execute_phase_4
 from meve.phases.phase5_budgeting import execute_phase_5
+from meve.services.vector_db_client import VectorDBClient
 from meve.utils import get_logger
 
 logger = get_logger(__name__)
@@ -21,23 +22,100 @@ class MeVeEngine:
     def __init__(
         self,
         config: MeVeConfig,
-        vector_store: Dict[str, ContextChunk],
-        bm25_index: Dict[str, ContextChunk],
+        vector_store: Optional[Dict[str, ContextChunk]] = None,
+        bm25_index: Optional[Dict[str, ContextChunk]] = None,
+        vector_db_client: Optional[VectorDBClient] = None,
+        vector_db_config: Optional[dict] = None,
     ):
+        """
+        Initialize MeVe Engine with flexible data source options.
+
+        Args:
+            config: MeVe pipeline configuration
+            vector_store: Optional dict of chunks for vector search (legacy mode)
+            bm25_index: Optional dict of chunks for BM25 fallback
+            vector_db_client: Optional pre-initialized VectorDBClient instance
+            vector_db_config: Optional config to initialize new VectorDBClient:
+                - collection_name: str (default: "meve_chunks")
+                - is_persistent: bool (default: False)
+                - use_cloud: bool (default: False)
+                - cloud_config: dict with api_key, tenant, database
+                - load_existing: bool (default: False) - load from existing collection
+                - chunks: List[ContextChunk] - chunks to populate (if not load_existing)
+
+        Usage modes:
+            1. Legacy: Pass vector_store and bm25_index dicts
+            2. External DB: Pass vector_db_client instance
+            3. Auto-connect: Pass vector_db_config with load_existing=True
+            4. Auto-create: Pass vector_db_config with chunks
+        """
         self.config = config
         self.vector_store = vector_store
         self.bm25_index = bm25_index
-        self.last_retrieved_chunks = []  # Store final chunks from last run
+        self.vector_db_client = vector_db_client
+        self.last_retrieved_chunks = []
+        self.bm25_corpus_stats = None  # Precomputed BM25 statistics
+
+        if vector_db_config and not vector_db_client:
+            self._init_vector_db_from_config(vector_db_config)
+
+        # Precompute BM25 corpus statistics if bm25_index is provided
+        if bm25_index:
+            self._precompute_bm25_stats()
+
+        if not vector_store and not vector_db_client:
+            logger.error("No vector data source provided. Engine will require data before running.")
+
+    def _init_vector_db_from_config(self, config: dict):
+        """Initialize VectorDBClient from configuration dict."""
+        try:
+            self.vector_db_client = VectorDBClient(**config)
+
+            # If loading existing collection, populate vector_store for compatibility
+            if config.get("load_existing") and self.vector_db_client.chunks:
+                self.vector_store = {chunk.doc_id: chunk for chunk in self.vector_db_client.chunks}
+        except Exception as e:
+            logger.error(f"Failed to initialize VectorDBClient: {e}")
+            raise
+
+    def _precompute_bm25_stats(self):
+        """Precompute BM25 corpus statistics for better performance."""
+        if self.bm25_index:
+            try:
+                all_chunks = list(self.bm25_index.values())
+                self.bm25_corpus_stats = build_corpus_stats(all_chunks)
+                logger.info(f"Precomputed BM25 stats for {len(all_chunks)} chunks")
+            except Exception as e:
+                logger.warning(f"Failed to precompute BM25 stats: {e}")
+                self.bm25_corpus_stats = None
 
     def run(self, query_text: str) -> str:
+        """
+        Execute the MeVe pipeline on a query.
+
+        Args:
+            query_text: User's query string
+
+        Returns:
+            Final context string ready for LLM consumption
+        """
+        # Validate data sources
+        if not self.vector_store and not self.vector_db_client:
+            logger.error("No vector data source configured")
+            return "Error: No vector data source configured. Please provide vector_store or vector_db_client."
 
         # 0. Initialize and Vectorize Query
         # Let Phase 1 handle the query vectorization with proper dimensions
         query = Query(text=query_text, vector=None)
-        logger.info(f"\n--- Running MeVe Pipeline for Query: '{query_text}' ---\n")
 
         # --- Phase 1: Initial Retrieval (kNN Search) ---
-        initial_candidates = execute_phase_1(query, self.config, self.vector_store)
+        # Pass vector_db_client if available, otherwise use vector_store
+        if self.vector_db_client:
+            initial_candidates = execute_phase_1(
+                query, self.config, vector_store=None, vector_db_client=self.vector_db_client
+            )
+        else:
+            initial_candidates = execute_phase_1(query, self.config, self.vector_store)
 
         # --- Phase 2: Relevance Verification (Cross-Encoder) ---
         verified_chunks = execute_phase_2(query, initial_candidates, self.config)
@@ -47,20 +125,20 @@ class MeVeEngine:
         # --- Conditional Phase 3: Fallback Retrieval (BM25) ---
         # Logic: If |C_ver| < N_min, trigger fallback
         if len(verified_chunks) < self.config.n_min:
-            logger.info(
-                f"\n--- Condition Met: |C_ver| ({len(verified_chunks)}) < N_min ({self.config.n_min}). Triggering Fallback ---"
-            )
-            fallback_chunks = execute_phase_3(query, self.bm25_index)
 
-            # Combine Context: C_all = C_ver U C_fallback
-            combined_context.extend(fallback_chunks)
-            logger.info(f"Total Combined Context Chunks: {len(combined_context)}")
-        else:
-            logger.info(
-                f"\n--- Condition Not Met: |C_ver| ({len(verified_chunks)}) >= N_min ({self.config.n_min}). Skipping Fallback ---"
-            )
+            # Use bm25_index if provided, otherwise use vector_store
+            fallback_source = self.bm25_index if self.bm25_index else self.vector_store
+            if fallback_source:
+                fallback_chunks = execute_phase_3(
+                    query, fallback_source, corpus_stats=self.bm25_corpus_stats
+                )
+                # Combine Context: C_all = C_ver U C_fallback
+                combined_context.extend(fallback_chunks)
+            else:
+                logger.warning("BM25 fallback unavailable - no index provided")
 
         if not combined_context:
+            logger.warning("No relevant context retrieved for query")
             return "Error: No context could be retrieved or verified."
 
         # --- Phase 4: Context Prioritization (Relevance/Redundancy) ---
@@ -72,12 +150,66 @@ class MeVeEngine:
         # Store final chunks for metrics/analysis
         self.last_retrieved_chunks = final_chunks
 
-        # Final Output (The context passed to the LLM)
-        logger.info("\n================= FINAL CONTEXT FOR LLM ==================")
-        logger.info(f"Total Final Chunks: {len(final_chunks)}")
-        logger.info(f"Context Snippet: {final_context_string[:200]}...")
-        # In a full RAG system, the LLM would now generate the answer using this context.
+        # Log summary
+        logger.info(
+            f"MeVe retrieval complete: {len(final_chunks)} chunks, {sum(c.token_count for c in final_chunks)} tokens"
+        )
+
         return final_context_string
+
+    def connect_to_vector_db(
+        self,
+        collection_name: str,
+        is_persistent: bool = False,
+        use_cloud: bool = False,
+        cloud_config: Optional[dict] = None,
+    ):
+        """
+        Connect to an existing vector DB collection.
+
+        Args:
+            collection_name: Name of the ChromaDB collection
+            is_persistent: Whether to use persistent storage
+            use_cloud: Whether to connect to ChromaDB Cloud
+            cloud_config: Cloud configuration (api_key, tenant, database)
+        """
+        config = {
+            "collection_name": collection_name,
+            "is_persistent": is_persistent,
+            "use_cloud": use_cloud,
+            "cloud_config": cloud_config,
+            "load_existing": True,
+        }
+        self._init_vector_db_from_config(config)
+
+        # Also populate bm25_index from loaded chunks for fallback
+        if self.vector_db_client and self.vector_db_client.chunks:
+            self.bm25_index = {chunk.doc_id: chunk for chunk in self.vector_db_client.chunks}
+            # Precompute BM25 stats for new index
+            self._precompute_bm25_stats()
+
+    def set_data_sources(
+        self,
+        vector_store: Optional[Dict[str, ContextChunk]] = None,
+        bm25_index: Optional[Dict[str, ContextChunk]] = None,
+        vector_db_client: Optional[VectorDBClient] = None,
+    ):
+        """
+        Update data sources after initialization.
+
+        Args:
+            vector_store: Dict of chunks for vector search
+            bm25_index: Dict of chunks for BM25 fallback
+            vector_db_client: Pre-initialized VectorDBClient instance
+        """
+        if vector_store:
+            self.vector_store = vector_store
+        if bm25_index:
+            self.bm25_index = bm25_index
+            # Recompute BM25 stats when index changes
+            self._precompute_bm25_stats()
+        if vector_db_client:
+            self.vector_db_client = vector_db_client
 
 
 # ----------------- REAL DATA LOADING -----------------
@@ -99,8 +231,6 @@ def load_hotpotqa_data(
     data_dir: str = "data", max_examples: int = 100
 ) -> Tuple[Dict[str, ContextChunk], List[Dict]]:
     """Load HotpotQA data and create context chunks."""
-    logger.info(f"Loading HotpotQA data from {data_dir}...")
-
     # Try to load training data
     train_file = os.path.join(data_dir, "hotpot_train_v1.1.json")
     dev_file = os.path.join(data_dir, "hotpot_dev_distractor_v1.json")
@@ -108,11 +238,10 @@ def load_hotpotqa_data(
     data_file = train_file if os.path.exists(train_file) else dev_file
 
     if not os.path.exists(data_file):
+        logger.error(f"No HotpotQA data found in {data_dir}")
         raise FileNotFoundError(
             f"❌ No HotpotQA data found in {data_dir}. Please ensure you have either 'hotpot_train_v1.1.json' or 'hotpot_dev_distractor_v1.json' in the data directory."
         )
-
-    logger.info(f"📄 Loading from {data_file}")
 
     with open(data_file, "r", encoding="utf-8") as f:
         hotpot_data = json.load(f)
@@ -158,7 +287,7 @@ def load_hotpotqa_data(
                     chunk = ContextChunk(content=content, doc_id=doc_id, embedding=None)
                     chunks[doc_id] = chunk
 
-    logger.success(f"Loaded {len(chunks)} chunks and {len(questions)} questions from HotpotQA")
+    logger.info(f"Loaded {len(chunks)} chunks and {len(questions)} questions from HotpotQA")
     return chunks, questions
 
 
@@ -182,12 +311,8 @@ def setup_meve_data(
 
 if __name__ == "__main__":
 
-    logger.info("🚀 MeVe Framework with Real HotpotQA Data")
-    logger.info("=" * 50)
-
     # Setup data and configuration
     vector_store, bm25_index, questions = setup_meve_data(data_dir="data", max_examples=50)
-    logger.info(f"📊 Loaded knowledge base with {len(vector_store)} chunks")
 
     # Use questions from the dataset
     sample_questions = [q["question"] for q in questions[:3]]
@@ -209,21 +334,5 @@ if __name__ == "__main__":
 
     # Test with real questions
     for i, query_text in enumerate(sample_questions, 1):
-        logger.info(f"\n{'='*60}")
-        logger.info(f"🔍 QUERY {i}: {query_text}")
-        logger.info(f"{'='*60}")
-
         engine = MeVeEngine(config, vector_store, bm25_index)
         final_context = engine.run(query_text)
-
-        logger.info(f"\n📋 Summary for Query {i}:")
-        logger.info(f"   • Final context length: {len(final_context)} characters")
-        logger.info(f"   • Query: {query_text[:60]}...")
-
-    logger.success("\n🎉 MeVe pipeline testing completed!")
-    logger.info(
-        f"💡 Successfully processed {len(sample_questions)} real HotpotQA questions through all 5 phases."
-    )
-    logger.info(
-        f"📊 Knowledge base contains {len(vector_store)} context chunks from HotpotQA dataset."
-    )

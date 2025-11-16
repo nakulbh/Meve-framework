@@ -48,15 +48,23 @@ pip install -e .
 
 ```python
 from meve import MeVeEngine, MeVeConfig, ContextChunk
+from meve.services.vector_db_client import VectorDBClient
 
 # 1. Prepare your data
-chunks = {
-    "doc1": ContextChunk("The Eiffel Tower is in Paris, France.", "doc1"),
-    "doc2": ContextChunk("Paris is the capital of France.", "doc2"),
-    "doc3": ContextChunk("The Louvre Museum is in Paris.", "doc3"),
-}
+chunks = [
+    ContextChunk("The Eiffel Tower is in Paris, France.", "doc1"),
+    ContextChunk("Paris is the capital of France.", "doc2"),
+    ContextChunk("The Louvre Museum is in Paris.", "doc3"),
+]
 
-# 2. Configure the pipeline
+# 2. Initialize ChromaDB (default vector database)
+vector_db = VectorDBClient(
+    chunks=chunks,
+    collection_name="my_collection",
+    is_persistent=False  # In-memory for quick testing
+)
+
+# 3. Configure the pipeline
 config = MeVeConfig(
     k_init=10,           # Initial candidates from vector search
     tau_relevance=0.5,   # Relevance threshold (0-1)
@@ -65,13 +73,35 @@ config = MeVeConfig(
     t_max=512            # Maximum token budget
 )
 
-# 3. Initialize engine (vector_store and bm25_index use same chunks)
-engine = MeVeEngine(config, chunks, chunks)
+# 4. Initialize engine with ChromaDB
+engine = MeVeEngine(config=config, vector_db_client=vector_db)
 
-# 4. Retrieve context
+# 5. Retrieve context
 context = engine.run("Where is the Eiffel Tower?")
 print(context)
 ```
+
+### ChromaDB Integration
+
+MeVe uses **ChromaDB** as its default vector database. Three ways to use it:
+
+```python
+# Option 1: In-memory (fastest, temporary)
+vector_db = VectorDBClient(chunks=chunks, is_persistent=False)
+
+# Option 2: Persistent storage (production)
+vector_db = VectorDBClient(chunks=chunks, is_persistent=True)
+
+# Option 3: Load existing collection
+vector_db = VectorDBClient(
+    collection_name="my_collection",
+    is_persistent=True,
+    load_existing=True  # No re-embedding needed!
+)
+```
+
+**Quick start:** `python examples/quickstart_chromadb.py`  
+**Full guide:** See [docs/chromadb_guide.md](docs/chromadb_guide.md)
 
 ### Run with HotpotQA Data
 

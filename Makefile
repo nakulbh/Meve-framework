@@ -25,7 +25,7 @@ install-dev:
 	uv sync --extra dev
 
 run:
-	uv run python main.py
+	uv run python example/meve.example.py
 
 example:
 	uv run python examples/basic_usage.py

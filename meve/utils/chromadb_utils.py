@@ -21,7 +21,7 @@ def query_chromadb_by_collection_id(
     top_k: int = 5,
     return_chunks: bool = True,
     query_embedding: Optional[List[float]] = None,
-    embedding_model: str = "text-embedding-3-small"
+    embedding_model: str = "text-embedding-3-small",
 ) -> Tuple[List[ContextChunk], List[float]]:
     """
     Query a ChromaDB Cloud collection by its ID.
@@ -57,11 +57,10 @@ def query_chromadb_by_collection_id(
     """
     try:
         # Connect to ChromaDB Cloud
-        logger.info(f"🔄 Connecting to ChromaDB Cloud collection: {collection_id}")
         chroma_client = chromadb.CloudClient(
-            api_key=cloud_config.get('api_key'),
-            tenant=cloud_config.get('tenant'),
-            database=cloud_config.get('database')
+            api_key=cloud_config.get("api_key"),
+            tenant=cloud_config.get("tenant"),
+            database=cloud_config.get("database"),
         )
 
         # Get the collection without embedding function
@@ -72,34 +71,32 @@ def query_chromadb_by_collection_id(
             try:
                 import openai
                 import os
-                
+
                 # Use OpenAI API to get embedding
-                openai_key = cloud_config.get('openai_api_key') or os.environ.get('OPENAI_API_KEY')
+                openai_key = cloud_config.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
                 if not openai_key:
-                    raise ValueError("OpenAI API key required. Provide via cloud_config['openai_api_key'] or OPENAI_API_KEY env var")
-                
+                    raise ValueError(
+                        "OpenAI API key required. Provide via cloud_config['openai_api_key'] or OPENAI_API_KEY env var"
+                    )
+
                 client = openai.OpenAI(api_key=openai_key)
-                response = client.embeddings.create(
-                    input=query,
-                    model=embedding_model
-                )
+                response = client.embeddings.create(input=query, model=embedding_model)
                 query_embedding = response.data[0].embedding
-                logger.info(f"✅ Generated query embedding using {embedding_model}")
             except Exception as e:
-                logger.error(f"❌ Failed to generate embedding: {e}")
+                logger.error(f"Failed to generate embedding: {e}")
                 raise
 
         # Query using pre-computed embedding
         results = collection.query(
             query_embeddings=[query_embedding],
             n_results=top_k,
-            include=['documents', 'metadatas', 'distances']
+            include=["documents", "metadatas", "distances"],
         )
 
         # Extract results
-        documents = results.get('documents', [[]])[0]
-        metadatas = results.get('metadatas', [[]])[0]
-        distances = results.get('distances', [[]])[0]
+        documents = results.get("documents", [[]])[0]
+        metadatas = results.get("metadatas", [[]])[0]
+        distances = results.get("distances", [[]])[0]
 
         # Convert distances to similarity scores
         # ChromaDB returns L2 distances, convert to similarity (0-1 range)
@@ -109,28 +106,22 @@ def query_chromadb_by_collection_id(
             # Create ContextChunk objects
             chunks = []
             for i, (doc, metadata, score) in enumerate(zip(documents, metadatas, similarities)):
-                chunk = ContextChunk(
-                    content=doc,
-                    doc_id=metadata.get('doc_id', f'doc_{i}')
-                )
+                chunk = ContextChunk(content=doc, doc_id=metadata.get("doc_id", f"doc_{i}"))
                 chunk.relevance_score = score
                 chunks.append(chunk)
 
-            logger.info(f"✅ Retrieved {len(chunks)} chunks from collection {collection_id}")
             return chunks, similarities
         else:
             # Return raw results
             return documents, similarities
 
     except Exception as e:
-        logger.error(f"❌ Error querying ChromaDB collection {collection_id}: {e}")
+        logger.error(f"Error querying ChromaDB collection {collection_id}: {e}")
         raise
 
 
 def load_chromadb_collection(
-    collection_id: str,
-    cloud_config: Dict[str, str],
-    max_chunks: Optional[int] = None
+    collection_id: str, cloud_config: Dict[str, str], max_chunks: Optional[int] = None
 ) -> List[ContextChunk]:
     """
     Load all chunks from a ChromaDB Cloud collection.
@@ -156,25 +147,23 @@ def load_chromadb_collection(
         ... )
     """
     try:
-        logger.info(f"🔄 Loading ChromaDB Cloud collection: {collection_id}")
-        
         # Connect to ChromaDB Cloud
         chroma_client = chromadb.CloudClient(
-            api_key=cloud_config.get('api_key'),
-            tenant=cloud_config.get('tenant'),
-            database=cloud_config.get('database')
+            api_key=cloud_config.get("api_key"),
+            tenant=cloud_config.get("tenant"),
+            database=cloud_config.get("database"),
         )
 
         # Get the collection
         collection = chroma_client.get_collection(name=collection_id)
 
         # Get all documents from the collection
-        results = collection.get(include=['documents', 'metadatas'])
+        results = collection.get(include=["documents", "metadatas"])
 
         # Create ContextChunk objects
         chunks = []
-        documents = results.get('documents', [])
-        metadatas = results.get('metadatas', [])
+        documents = results.get("documents", [])
+        metadatas = results.get("metadatas", [])
 
         # Limit chunks if max_chunks specified
         limit = min(len(documents), max_chunks) if max_chunks else len(documents)
@@ -182,18 +171,14 @@ def load_chromadb_collection(
         for i in range(limit):
             doc = documents[i]
             metadata = metadatas[i] if i < len(metadatas) else {}
-            
-            chunk = ContextChunk(
-                content=doc,
-                doc_id=metadata.get('doc_id', f'doc_{i}')
-            )
+
+            chunk = ContextChunk(content=doc, doc_id=metadata.get("doc_id", f"doc_{i}"))
             chunks.append(chunk)
 
-        logger.info(f"✅ Loaded {len(chunks)} chunks from collection {collection_id}")
         return chunks
 
     except Exception as e:
-        logger.error(f"❌ Error loading ChromaDB collection {collection_id}: {e}")
+        logger.error(f"Error loading ChromaDB collection {collection_id}: {e}")
         raise
 
 
@@ -201,7 +186,7 @@ def query_multiple_collections(
     collection_ids: List[str],
     query: str,
     cloud_config: Dict[str, str],
-    top_k_per_collection: int = 3
+    top_k_per_collection: int = 3,
 ) -> Dict[str, Tuple[List[ContextChunk], List[float]]]:
     """
     Query multiple ChromaDB collections with the same query.
@@ -224,18 +209,18 @@ def query_multiple_collections(
         ... )
     """
     results = {}
-    
+
     for collection_id in collection_ids:
         try:
             chunks, scores = query_chromadb_by_collection_id(
                 collection_id=collection_id,
                 query=query,
                 cloud_config=cloud_config,
-                top_k=top_k_per_collection
+                top_k=top_k_per_collection,
             )
             results[collection_id] = (chunks, scores)
         except Exception as e:
-            logger.warning(f"⚠️  Failed to query collection {collection_id}: {e}")
+            logger.warning(f"Failed to query collection {collection_id}: {e}")
             results[collection_id] = ([], [])
-    
+
     return results

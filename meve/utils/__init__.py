@@ -15,6 +15,12 @@ from meve.utils.chromadb_utils import (
     load_chromadb_collection,
     query_multiple_collections,
 )
+from meve.utils.model_manager import (
+    ModelManager,
+    get_sentence_transformer,
+    get_cross_encoder,
+    get_tokenizer,
+)
 
 __all__ = [
     "get_logger",
@@ -29,4 +35,8 @@ __all__ = [
     "query_chromadb_by_collection_id",
     "load_chromadb_collection",
     "query_multiple_collections",
+    "ModelManager",
+    "get_sentence_transformer",
+    "get_cross_encoder",
+    "get_tokenizer",
 ]

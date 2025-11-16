@@ -79,43 +79,68 @@ def build_corpus_stats(all_chunks: List[ContextChunk]) -> Dict:
     }
 
 
-def execute_phase_3(query: Query, bm25_index: Dict[str, ContextChunk]) -> List[ContextChunk]:
+def execute_phase_3(
+    query: Query, bm25_index: Dict[str, ContextChunk], corpus_stats: Dict = None
+) -> List[ContextChunk]:
     """
     Phase 3: Fallback Retrieval (BM25 Okapi).
     Retrieves additional documents based on BM25 Okapi scoring.
+
+    Args:
+        query: Query object
+        bm25_index: Dictionary of chunks to search
+        corpus_stats: Precomputed corpus statistics (optional, will compute if not provided)
+
+    Returns:
+        List of fallback candidate chunks
+
+    Raises:
+        ValueError: If bm25_index is empty or invalid
     """
-    logger.info("--- Phase 3: Fallback Retrieval (BM25 Okapi) ---")
+    try:
+        if not bm25_index:
+            logger.warning("Phase 3: Empty BM25 index provided")
+            return []
 
-    query_terms = query.text.lower().split()
-    logger.debug(f"Searching using query terms: {query_terms}")
+        if not query.text:
+            logger.warning("Phase 3: Empty query text")
+            return []
 
-    # Get all chunks and build corpus statistics
-    all_chunks = list(bm25_index.values())
-    corpus_stats = build_corpus_stats(all_chunks)
+        query_terms = query.text.lower().split()
+        if not query_terms:
+            logger.warning("Phase 3: No query terms after processing")
+            return []
 
-    # Calculate BM25 scores for each chunk
-    scored_chunks = []
+        # Get all chunks
+        all_chunks = list(bm25_index.values())
 
-    for chunk in all_chunks:
-        document_terms = chunk.content.lower().split()
+        # Use precomputed stats or compute on-the-fly
+        if corpus_stats is None:
+            logger.debug("Phase 3: Computing corpus stats on-the-fly")
+            corpus_stats = build_corpus_stats(all_chunks)
 
-        # Calculate BM25 Okapi score
-        bm25_score = calculate_bm25_okapi(query_terms, document_terms, corpus_stats)
+        # Calculate BM25 scores for each chunk
+        scored_chunks = []
 
-        if bm25_score > 0:  # Only include chunks with positive BM25 score
-            # Normalize score to 0-0.6 range for fallback (keeping it lower than verified chunks)
-            normalized_score = min(0.6, bm25_score / 10.0)  # Scale down for reasonable range
-            chunk.relevance_score = normalized_score
-            scored_chunks.append(chunk)
+        for chunk in all_chunks:
+            document_terms = chunk.content.lower().split()
 
-    # Sort by BM25 score and take top 5
-    scored_chunks.sort(key=lambda x: x.relevance_score, reverse=True)
-    fallback_candidates = scored_chunks[:5]
+            # Calculate BM25 Okapi score
+            bm25_score = calculate_bm25_okapi(query_terms, document_terms, corpus_stats)
 
-    logger.info(f"Retrieved {len(fallback_candidates)} fallback chunks using BM25 Okapi.")
-    for i, chunk in enumerate(fallback_candidates):
-        logger.debug(
-            f"  Fallback {i+1}: BM25 Score={chunk.relevance_score:.3f}, Content: {chunk.content[:50]}..."
-        )
+            if bm25_score > 0:  # Only include chunks with positive BM25 score
+                # Normalize score to 0-0.6 range for fallback (keeping it lower than verified chunks)
+                normalized_score = min(0.6, bm25_score / 10.0)  # Scale down for reasonable range
+                chunk.relevance_score = normalized_score
+                scored_chunks.append(chunk)
 
-    return fallback_candidates
+        # Sort by BM25 score and take top 5
+        scored_chunks.sort(key=lambda x: x.relevance_score, reverse=True)
+        fallback_candidates = scored_chunks[:5]
+
+        logger.info(f"Phase 3: Retrieved {len(fallback_candidates)} fallback candidates")
+        return fallback_candidates
+
+    except Exception as e:
+        logger.error(f"Phase 3 failed with error: {e}", error=e)
+        return []

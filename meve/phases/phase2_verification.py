@@ -3,25 +3,16 @@
 from typing import List
 
 import torch
-from sentence_transformers import CrossEncoder
 
 from meve.core.models import ContextChunk, MeVeConfig, Query
-from meve.utils import get_logger
+from meve.utils import get_logger, get_cross_encoder
 
 logger = get_logger(__name__)
 
-# Lazy load cross-encoder model for relevance scoring
-cross_encoder = None
-
 
 def _get_cross_encoder():
-    """Lazy load the cross-encoder model."""
-    global cross_encoder
-    if cross_encoder is None:
-        logger.info("Loading cross-encoder model...")
-        cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-        logger.info("Cross-encoder model loaded")
-    return cross_encoder
+    """Get the cross-encoder model from the model manager."""
+    return get_cross_encoder()
 
 
 def get_relevance_score(query_text: str, chunk_content: str) -> float:
@@ -66,27 +57,50 @@ def execute_phase_2(
     """
     Phase 2: Relevance Verification (Cross-Encoder).
     Filters candidates based on the relevance threshold (tau)[cite: 75, 90].
+    Uses batch prediction for improved performance.
     """
-    logger.info(f"--- Phase 2: Relevance Verification (Tau={config.tau_relevance}) ---")
-
     if not initial_candidates:
-        logger.warning("No initial candidates to verify.")
+        logger.warning("Phase 2: No initial candidates to verify.")
         return []
 
     verified_chunks: List[ContextChunk] = []
 
-    # Process each candidate through the cross-encoder
-    for chunk in initial_candidates:
-        score = get_relevance_score(query.text, chunk.content)
-        chunk.relevance_score = score
+    # Prepare all query-document pairs for batch processing
+    pairs = [(query.text, chunk.content) for chunk in initial_candidates]
 
-        logger.debug(f"Chunk {chunk.doc_id}: relevance_score={score:.3f}")
+    # Batch predict all pairs at once for better performance
+    try:
+        encoder = _get_cross_encoder()
+        scores = encoder.predict(pairs)
 
-        if score >= config.tau_relevance:
-            verified_chunks.append(chunk)
-            logger.debug(f"  → VERIFIED (score >= {config.tau_relevance})")
-        else:
-            logger.debug(f"  → FILTERED OUT (score < {config.tau_relevance})")
+        # Handle different return types
+        if isinstance(scores, torch.Tensor):
+            scores = scores.cpu().numpy()
+        elif not isinstance(scores, (list, tuple)):
+            scores = [scores]
 
-    logger.info(f"Verified {len(verified_chunks)} out of {len(initial_candidates)} chunks (C_ver).")
+        # Apply sigmoid normalization and filter by threshold
+        for chunk, score in zip(initial_candidates, scores):
+            # Normalize score to [0,1] range
+            if isinstance(score, torch.Tensor):
+                score = score.item()
+            else:
+                score = float(score)
+
+            normalized_score = torch.sigmoid(torch.tensor(score)).item()
+            chunk.relevance_score = normalized_score
+
+            if normalized_score >= config.tau_relevance:
+                verified_chunks.append(chunk)
+
+    except Exception as e:
+        logger.error(f"Batch cross-encoder scoring failed: {e}", error=e)
+        # Fallback to individual scoring
+        for chunk in initial_candidates:
+            score = get_relevance_score(query.text, chunk.content)
+            chunk.relevance_score = score
+
+            if score >= config.tau_relevance:
+                verified_chunks.append(chunk)
+
     return verified_chunks
