@@ -131,17 +131,17 @@ block-beta
     Phase4 --> Phase5
     Phase5 --> Output
     
-    style Query fill:#e1f5fe
-    style Phase1 fill:#f3e5f5
-    style Phase2 fill:#f3e5f5
-    style Decision fill:#fff3e0
-    style Phase3 fill:#f3e5f5
-    style Combine fill:#e8f5e9
-    style Phase4 fill:#f3e5f5
-    style Phase5 fill:#f3e5f5
-    style Output fill:#e1f5fe
-    style VectorDB fill:#f5f5f5
-    style BM25DB fill:#f5f5f5
+    style Query fill:#4fc3f7,stroke:#01579b,stroke-width:2px,color:#000
+    style Phase1 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
+    style Phase2 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
+    style Decision fill:#ffb74d,stroke:#e65100,stroke-width:2px,color:#000
+    style Phase3 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
+    style Combine fill:#81c784,stroke:#1b5e20,stroke-width:2px,color:#000
+    style Phase4 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
+    style Phase5 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
+    style Output fill:#4fc3f7,stroke:#01579b,stroke-width:2px,color:#000
+    style VectorDB fill:#e0e0e0,stroke:#424242,stroke-width:2px,color:#000
+    style BM25DB fill:#e0e0e0,stroke:#424242,stroke-width:2px,color:#000
 ```
 
 #### Phase Descriptions

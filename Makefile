@@ -1,4 +1,4 @@
-.PHONY: help install install-dev run example test clean lint format download-data
+.PHONY: help install install-dev run example test clean lint format download-data script setup-chromadb
 
 help:
 	@echo "Usage: make [target]"
@@ -12,7 +12,7 @@ help:
 	@echo "  clean          Remove cache files"
 	@echo "  lint           Run ruff linter"
 	@echo "  format         Format code with black"
-	@echo "  download-data  Download HotpotQA dataset"
+	@echo "  script name=<name>  Run script by name (e.g., make script name=download_data)"
 
 install:
 	uv sync
@@ -39,5 +39,19 @@ lint:
 format:
 	@uv run black . || echo "Run 'make install-dev' to install black"
 
-download-data:
-	uv run python scripts/download_data.py
+# Run any script by name: make script name=<script_name>
+script:
+	@if [ -z "$(name)" ]; then \
+		echo "Error: Please provide script name. Usage: make script name=<script_name>"; \
+		echo "Available scripts:"; \
+		ls scripts/*.py | xargs -n 1 basename -s .py; \
+		exit 1; \
+	fi; \
+	if [ -f "scripts/$(name).py" ]; then \
+		uv run python scripts/$(name).py; \
+	else \
+		echo "Error: Script 'scripts/$(name).py' not found"; \
+		echo "Available scripts:"; \
+		ls scripts/*.py | xargs -n 1 basename -s .py; \
+		exit 1; \
+	fi
