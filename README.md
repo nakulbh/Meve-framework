@@ -97,52 +97,8 @@ Query → kNN Search → Verification → [Fallback?] → Deduplication → Budg
 ```
 
 ### The 5 Phases
+<img width="836" height="474" alt="image" src="https://github.com/user-attachments/assets/eed74925-baee-4729-90d6-a76b9e96413b" />
 
-```mermaid
-block-beta
-    columns 5
-    
-    Query["Query Input"]
-    
-    space
-    VectorDB[("Vector Store<br/>ChromaDB")]
-    BM25DB[("BM25 Index<br/>rank-bm25")]
-    space
-    
-    Phase1["Phase 1: kNN<br/>Top k_init candidates<br/>via embedding similarity"]
-    Phase2["Phase 2: Verify<br/>Cross-encoder scoring<br/>τ_relevance threshold"]
-    Decision{"Verified<br/>< n_min?"}
-    Phase3["Phase 3: Fallback<br/>BM25 lexical search<br/>for missing relevance"]
-    Combine["Merge<br/>Contexts"]
-    
-    Phase4["Phase 4: Prioritize<br/>MMR deduplication<br/>θ_redundancy"]
-    Phase5["Phase 5: Budget<br/>Greedy packing<br/>t_max tokens"]
-    Output["Optimized<br/>Context"]
-    
-    Query --> Phase1
-    VectorDB --> Phase1
-    Phase1 --> Phase2
-    Phase2 --> Decision
-    Decision -->|"No"| Combine
-    Decision -->|"Yes"| Phase3
-    BM25DB --> Phase3
-    Phase3 --> Combine
-    Combine --> Phase4
-    Phase4 --> Phase5
-    Phase5 --> Output
-    
-    style Query fill:#4fc3f7,stroke:#01579b,stroke-width:2px,color:#000
-    style Phase1 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
-    style Phase2 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
-    style Decision fill:#ffb74d,stroke:#e65100,stroke-width:2px,color:#000
-    style Phase3 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
-    style Combine fill:#81c784,stroke:#1b5e20,stroke-width:2px,color:#000
-    style Phase4 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
-    style Phase5 fill:#ce93d8,stroke:#4a148c,stroke-width:2px,color:#000
-    style Output fill:#4fc3f7,stroke:#01579b,stroke-width:2px,color:#000
-    style VectorDB fill:#e0e0e0,stroke:#424242,stroke-width:2px,color:#000
-    style BM25DB fill:#e0e0e0,stroke:#424242,stroke-width:2px,color:#000
-```
 
 #### Phase Descriptions
 
