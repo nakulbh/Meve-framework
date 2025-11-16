@@ -1,0 +1,710 @@
+{
+  "timestamp": "2025-11-17T02:04:25.377996",
+  "total_questions": 10,
+  "results": [
+    {
+      "question": "Who is Aristotle and what is he known for?",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.014419794082641602,
+        "chunks": [
+          {
+            "doc_id": "308_chunk_0",
+            "title": "Aristotle",
+            "similarity": 0.7935262486514201
+          },
+          {
+            "doc_id": "308_chunk_7",
+            "title": "Unknown",
+            "similarity": 0.7531788704285051
+          },
+          {
+            "doc_id": "308_chunk_1",
+            "title": "Unknown",
+            "similarity": 0.7500023245883511
+          },
+          {
+            "doc_id": "308_chunk_129",
+            "title": "Unknown",
+            "similarity": 0.7460562516592278
+          },
+          {
+            "doc_id": "308_chunk_124",
+            "title": "Unknown",
+            "similarity": 0.7454416763935252
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 5,
+        "total_tokens": 457,
+        "retrieval_time": 4.992357015609741,
+        "chunks": [
+          {
+            "doc_id": "308_chunk_0",
+            "title": "Aristotle",
+            "relevance_score": 0.9992796778678894,
+            "token_count": 114
+          },
+          {
+            "doc_id": "308_chunk_6",
+            "title": "Unknown",
+            "relevance_score": 0.9835347533226013,
+            "token_count": 93
+          },
+          {
+            "doc_id": "308_chunk_123",
+            "title": "Unknown",
+            "relevance_score": 0.9936612844467163,
+            "token_count": 107
+          },
+          {
+            "doc_id": "308_chunk_1",
+            "title": "Unknown",
+            "relevance_score": 0.9889879822731018,
+            "token_count": 105
+          },
+          {
+            "doc_id": "308_chunk_124_truncated",
+            "title": "Unknown",
+            "relevance_score": 0.9988760352134705,
+            "token_count": 38
+          }
+        ]
+      }
+    },
+    {
+      "question": "What is Albert Einstein's theory of relativity?",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.006901979446411133,
+        "chunks": [
+          {
+            "doc_id": "736_chunk_0",
+            "title": "Albert Einstein",
+            "similarity": 0.7689514272053409
+          },
+          {
+            "doc_id": "736_chunk_141",
+            "title": "Unknown",
+            "similarity": 0.7463988841842929
+          },
+          {
+            "doc_id": "736_chunk_36",
+            "title": "Unknown",
+            "similarity": 0.7454478370072207
+          },
+          {
+            "doc_id": "736_chunk_154",
+            "title": "Unknown",
+            "similarity": 0.7412339838394781
+          },
+          {
+            "doc_id": "736_chunk_3",
+            "title": "Unknown",
+            "similarity": 0.7347428196751408
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 5,
+        "total_tokens": 413,
+        "retrieval_time": 1.3399364948272705,
+        "chunks": [
+          {
+            "doc_id": "736_chunk_0",
+            "title": "Albert Einstein",
+            "relevance_score": 0.9992545247077942,
+            "token_count": 92
+          },
+          {
+            "doc_id": "736_chunk_144",
+            "title": "Unknown",
+            "relevance_score": 0.9958966970443726,
+            "token_count": 88
+          },
+          {
+            "doc_id": "736_chunk_142",
+            "title": "Unknown",
+            "relevance_score": 0.9977282881736755,
+            "token_count": 83
+          },
+          {
+            "doc_id": "736_chunk_216",
+            "title": "Unknown",
+            "relevance_score": 0.9639008045196533,
+            "token_count": 81
+          },
+          {
+            "doc_id": "736_chunk_153",
+            "title": "Unknown",
+            "relevance_score": 0.9577488303184509,
+            "token_count": 69
+          }
+        ]
+      }
+    },
+    {
+      "question": "What are the main contributions of Aristotle to science?",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.01676774024963379,
+        "chunks": [
+          {
+            "doc_id": "308_chunk_39",
+            "title": "Unknown",
+            "similarity": 0.7394048900754825
+          },
+          {
+            "doc_id": "308_chunk_70",
+            "title": "Unknown",
+            "similarity": 0.722175384471548
+          },
+          {
+            "doc_id": "308_chunk_124",
+            "title": "Unknown",
+            "similarity": 0.7096453164181311
+          },
+          {
+            "doc_id": "308_chunk_0",
+            "title": "Aristotle",
+            "similarity": 0.7037174864644031
+          },
+          {
+            "doc_id": "308_chunk_165",
+            "title": "Unknown",
+            "similarity": 0.7034148576059206
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 4,
+        "total_tokens": 379,
+        "retrieval_time": 1.6896562576293945,
+        "chunks": [
+          {
+            "doc_id": "308_chunk_124",
+            "title": "Unknown",
+            "relevance_score": 0.9985222220420837,
+            "token_count": 78
+          },
+          {
+            "doc_id": "308_chunk_16",
+            "title": "Unknown",
+            "relevance_score": 0.9983847141265869,
+            "token_count": 74
+          },
+          {
+            "doc_id": "308_chunk_165",
+            "title": "Unknown",
+            "relevance_score": 0.9798675775527954,
+            "token_count": 120
+          },
+          {
+            "doc_id": "308_chunk_123",
+            "title": "Unknown",
+            "relevance_score": 0.9588792324066162,
+            "token_count": 107
+          }
+        ]
+      }
+    },
+    {
+      "question": "Explain the concept of anatomy and its history",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.010648488998413086,
+        "chunks": [
+          {
+            "doc_id": "674_chunk_1",
+            "title": "Unknown",
+            "similarity": 0.8286901204141333
+          },
+          {
+            "doc_id": "674_chunk_0",
+            "title": "Anatomy",
+            "similarity": 0.8253015088601816
+          },
+          {
+            "doc_id": "674_chunk_77",
+            "title": "Unknown",
+            "similarity": 0.7553108786596563
+          },
+          {
+            "doc_id": "674_chunk_107",
+            "title": "Unknown",
+            "similarity": 0.7541420303065269
+          },
+          {
+            "doc_id": "674_chunk_106",
+            "title": "Unknown",
+            "similarity": 0.7500415877215253
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 4,
+        "total_tokens": 349,
+        "retrieval_time": 1.177441120147705,
+        "chunks": [
+          {
+            "doc_id": "674_chunk_4",
+            "title": "Unknown",
+            "relevance_score": 0.997119665145874,
+            "token_count": 86
+          },
+          {
+            "doc_id": "674_chunk_0",
+            "title": "Anatomy",
+            "relevance_score": 0.9707683324813843,
+            "token_count": 59
+          },
+          {
+            "doc_id": "674_chunk_1",
+            "title": "Unknown",
+            "relevance_score": 0.8669091463088989,
+            "token_count": 85
+          },
+          {
+            "doc_id": "674_chunk_5",
+            "title": "Unknown",
+            "relevance_score": 0.7153865098953247,
+            "token_count": 119
+          }
+        ]
+      }
+    },
+    {
+      "question": "What is the role of an astronomer?",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.017561674118041992,
+        "chunks": [
+          {
+            "doc_id": "580_chunk_0",
+            "title": "Astronomer",
+            "similarity": 0.7727992180443093
+          },
+          {
+            "doc_id": "580_chunk_5",
+            "title": "Unknown",
+            "similarity": 0.7120826696241251
+          },
+          {
+            "doc_id": "580_chunk_4",
+            "title": "Unknown",
+            "similarity": 0.7115384631696537
+          },
+          {
+            "doc_id": "580_chunk_9",
+            "title": "Unknown",
+            "similarity": 0.6968606079909032
+          },
+          {
+            "doc_id": "580_chunk_11",
+            "title": "Unknown",
+            "similarity": 0.6881451713724794
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 6,
+        "total_tokens": 440,
+        "retrieval_time": 1.224625587463379,
+        "chunks": [
+          {
+            "doc_id": "580_chunk_0",
+            "title": "Astronomer",
+            "relevance_score": 0.9982016086578369,
+            "token_count": 89
+          },
+          {
+            "doc_id": "580_chunk_5",
+            "title": "Unknown",
+            "relevance_score": 0.98346346616745,
+            "token_count": 69
+          },
+          {
+            "doc_id": "580_chunk_1",
+            "title": "Unknown",
+            "relevance_score": 0.9478626251220703,
+            "token_count": 79
+          },
+          {
+            "doc_id": "580_chunk_4",
+            "title": "Unknown",
+            "relevance_score": 0.7321460247039795,
+            "token_count": 57
+          },
+          {
+            "doc_id": "580_chunk_2",
+            "title": "Unknown",
+            "relevance_score": 0.5667963027954102,
+            "token_count": 74
+          },
+          {
+            "doc_id": "580_chunk_8",
+            "title": "Unknown",
+            "relevance_score": 0.47366204857826233,
+            "token_count": 72
+          }
+        ]
+      }
+    },
+    {
+      "question": "What are the Academy Awards and when did they start?",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.0390322208404541,
+        "chunks": [
+          {
+            "doc_id": "324_chunk_3",
+            "title": "Unknown",
+            "similarity": 0.7552177188532182
+          },
+          {
+            "doc_id": "324_chunk_0",
+            "title": "Academy Awards",
+            "similarity": 0.7467360816208481
+          },
+          {
+            "doc_id": "324_chunk_72",
+            "title": "Unknown",
+            "similarity": 0.7353165719077273
+          },
+          {
+            "doc_id": "324_chunk_90",
+            "title": "Unknown",
+            "similarity": 0.7339656255472572
+          },
+          {
+            "doc_id": "324_chunk_1",
+            "title": "Unknown",
+            "similarity": 0.7339102410940874
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 5,
+        "total_tokens": 439,
+        "retrieval_time": 1.721174716949463,
+        "chunks": [
+          {
+            "doc_id": "324_chunk_66",
+            "title": "Unknown",
+            "relevance_score": 0.9981239438056946,
+            "token_count": 94
+          },
+          {
+            "doc_id": "324_chunk_40",
+            "title": "Unknown",
+            "relevance_score": 0.9696804881095886,
+            "token_count": 86
+          },
+          {
+            "doc_id": "324_chunk_91",
+            "title": "Unknown",
+            "relevance_score": 0.9948081374168396,
+            "token_count": 91
+          },
+          {
+            "doc_id": "324_chunk_75",
+            "title": "Unknown",
+            "relevance_score": 0.964548647403717,
+            "token_count": 89
+          },
+          {
+            "doc_id": "324_chunk_11",
+            "title": "Unknown",
+            "relevance_score": 0.9963240623474121,
+            "token_count": 79
+          }
+        ]
+      }
+    },
+    {
+      "question": "What is agricultural science and what does it study?",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.013229846954345703,
+        "chunks": [
+          {
+            "doc_id": "572_chunk_0",
+            "title": "Agricultural science",
+            "similarity": 0.8395745643158531
+          },
+          {
+            "doc_id": "572_chunk_9",
+            "title": "Unknown",
+            "similarity": 0.7664547404183655
+          },
+          {
+            "doc_id": "572_chunk_4",
+            "title": "Unknown",
+            "similarity": 0.7445043312225486
+          },
+          {
+            "doc_id": "572_chunk_10",
+            "title": "Unknown",
+            "similarity": 0.7388127695429689
+          },
+          {
+            "doc_id": "572_chunk_5",
+            "title": "Unknown",
+            "similarity": 0.7321270375262533
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 5,
+        "total_tokens": 402,
+        "retrieval_time": 1.2317957878112793,
+        "chunks": [
+          {
+            "doc_id": "572_chunk_0",
+            "title": "Agricultural science",
+            "relevance_score": 0.999862551689148,
+            "token_count": 67
+          },
+          {
+            "doc_id": "572_chunk_2",
+            "title": "Unknown",
+            "relevance_score": 0.9465454816818237,
+            "token_count": 87
+          },
+          {
+            "doc_id": "572_chunk_5",
+            "title": "Unknown",
+            "relevance_score": 0.9704957604408264,
+            "token_count": 64
+          },
+          {
+            "doc_id": "572_chunk_4",
+            "title": "Unknown",
+            "relevance_score": 0.983755350112915,
+            "token_count": 112
+          },
+          {
+            "doc_id": "572_chunk_9",
+            "title": "Unknown",
+            "relevance_score": 0.975195586681366,
+            "token_count": 72
+          }
+        ]
+      }
+    },
+    {
+      "question": "How did Einstein influence modern physics?",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.01948380470275879,
+        "chunks": [
+          {
+            "doc_id": "736_chunk_0",
+            "title": "Albert Einstein",
+            "similarity": 0.7622541788047089
+          },
+          {
+            "doc_id": "736_chunk_210",
+            "title": "Unknown",
+            "similarity": 0.7459789597246801
+          },
+          {
+            "doc_id": "736_chunk_201",
+            "title": "Unknown",
+            "similarity": 0.7423052908337427
+          },
+          {
+            "doc_id": "736_chunk_36",
+            "title": "Unknown",
+            "similarity": 0.7376764830999865
+          },
+          {
+            "doc_id": "736_chunk_141",
+            "title": "Unknown",
+            "similarity": 0.7279030765082362
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 5,
+        "total_tokens": 442,
+        "retrieval_time": 1.1020245552062988,
+        "chunks": [
+          {
+            "doc_id": "736_chunk_136",
+            "title": "Unknown",
+            "relevance_score": 0.9982832670211792,
+            "token_count": 90
+          },
+          {
+            "doc_id": "736_chunk_6",
+            "title": "Unknown",
+            "relevance_score": 0.9963234663009644,
+            "token_count": 93
+          },
+          {
+            "doc_id": "736_chunk_185",
+            "title": "Unknown",
+            "relevance_score": 0.9958332180976868,
+            "token_count": 89
+          },
+          {
+            "doc_id": "736_chunk_2",
+            "title": "Unknown",
+            "relevance_score": 0.9919021725654602,
+            "token_count": 79
+          },
+          {
+            "doc_id": "736_chunk_1",
+            "title": "Unknown",
+            "relevance_score": 0.95915287733078,
+            "token_count": 91
+          }
+        ]
+      }
+    },
+    {
+      "question": "What were Aristotle's views on logic and philosophy?",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.009921550750732422,
+        "chunks": [
+          {
+            "doc_id": "308_chunk_20",
+            "title": "Unknown",
+            "similarity": 0.7527153170143774
+          },
+          {
+            "doc_id": "308_chunk_6",
+            "title": "Unknown",
+            "similarity": 0.7393866092052954
+          },
+          {
+            "doc_id": "308_chunk_19",
+            "title": "Unknown",
+            "similarity": 0.7330275311931378
+          },
+          {
+            "doc_id": "308_chunk_0",
+            "title": "Aristotle",
+            "similarity": 0.7251934681644728
+          },
+          {
+            "doc_id": "308_chunk_124",
+            "title": "Unknown",
+            "similarity": 0.7152035385856229
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 5,
+        "total_tokens": 392,
+        "retrieval_time": 1.422180414199829,
+        "chunks": [
+          {
+            "doc_id": "308_chunk_3",
+            "title": "Unknown",
+            "relevance_score": 0.9951091408729553,
+            "token_count": 60
+          },
+          {
+            "doc_id": "308_chunk_20",
+            "title": "Unknown",
+            "relevance_score": 0.9625242948532104,
+            "token_count": 105
+          },
+          {
+            "doc_id": "308_chunk_126",
+            "title": "Unknown",
+            "relevance_score": 0.9746229648590088,
+            "token_count": 80
+          },
+          {
+            "doc_id": "308_chunk_149",
+            "title": "Unknown",
+            "relevance_score": 0.9234538078308105,
+            "token_count": 73
+          },
+          {
+            "doc_id": "308_chunk_16",
+            "title": "Unknown",
+            "relevance_score": 0.9581300616264343,
+            "token_count": 74
+          }
+        ]
+      }
+    },
+    {
+      "question": "What is the history of the Academy Awards ceremony?",
+      "simple_rag": {
+        "total_chunks": 5,
+        "retrieval_time": 0.00865936279296875,
+        "chunks": [
+          {
+            "doc_id": "324_chunk_3",
+            "title": "Unknown",
+            "similarity": 0.749156500917534
+          },
+          {
+            "doc_id": "324_chunk_5",
+            "title": "Unknown",
+            "similarity": 0.742515776763428
+          },
+          {
+            "doc_id": "324_chunk_1",
+            "title": "Unknown",
+            "similarity": 0.7389426064319993
+          },
+          {
+            "doc_id": "324_chunk_72",
+            "title": "Unknown",
+            "similarity": 0.7348487307279893
+          },
+          {
+            "doc_id": "324_chunk_66",
+            "title": "Unknown",
+            "similarity": 0.7328744405280944
+          }
+        ]
+      },
+      "meve_rag": {
+        "total_chunks": 5,
+        "total_tokens": 438,
+        "retrieval_time": 1.20076322555542,
+        "chunks": [
+          {
+            "doc_id": "324_chunk_3",
+            "title": "Unknown",
+            "relevance_score": 0.9987743496894836,
+            "token_count": 80
+          },
+          {
+            "doc_id": "324_chunk_11",
+            "title": "Unknown",
+            "relevance_score": 0.9870405793190002,
+            "token_count": 79
+          },
+          {
+            "doc_id": "324_chunk_5",
+            "title": "Unknown",
+            "relevance_score": 0.9762751460075378,
+            "token_count": 96
+          },
+          {
+            "doc_id": "324_chunk_75",
+            "title": "Unknown",
+            "relevance_score": 0.9402597546577454,
+            "token_count": 89
+          },
+          {
+            "doc_id": "324_chunk_66",
+            "title": "Unknown",
+            "relevance_score": 0.9937700629234314,
+            "token_count": 94
+          }
+        ]
+      }
+    }
+  ]
+}

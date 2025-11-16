@@ -10,7 +10,9 @@ import chromadb
 from chromadb.config import Settings
 
 from meve.core.models import ContextChunk
-from meve.utils import get_sentence_transformer
+from meve.utils import get_sentence_transformer, get_logger
+
+logger = get_logger(__name__)
 
 
 class VectorDBClient:
@@ -95,21 +97,29 @@ class VectorDBClient:
             raise ValueError(f"Failed to load existing collection '{self.collection_name}': {e}")
 
     def _populate_collection(self):
-        """Add all chunks to ChromaDB collection."""
+        """Add all chunks to ChromaDB collection in batches."""
         try:
-            documents = []
-            metadatas = []
-            ids = []
+            batch_size = 5000  # ChromaDB has a limit around 5461, so use smaller batches
 
-            for i, chunk in enumerate(self.chunks):
-                documents.append(chunk.content)
-                metadatas.append({"doc_id": chunk.doc_id, "chunk_index": i})
-                ids.append(f"chunk_{i}")
+            for start_idx in range(0, len(self.chunks), batch_size):
+                end_idx = min(start_idx + batch_size, len(self.chunks))
+                batch_chunks = self.chunks[start_idx:end_idx]
 
-            # Add all documents to collection in batch
-            if documents:
-                self.collection.add(documents=documents, metadatas=metadatas, ids=ids)
-            else:
+                documents = []
+                metadatas = []
+                ids = []
+
+                for i, chunk in enumerate(batch_chunks):
+                    documents.append(chunk.content)
+                    metadatas.append({"doc_id": chunk.doc_id, "chunk_index": start_idx + i})
+                    ids.append(f"chunk_{start_idx + i}")
+
+                # Add batch to collection
+                if documents:
+                    self.collection.add(documents=documents, metadatas=metadatas, ids=ids)
+                    logger.debug(f"Added batch {start_idx // batch_size + 1} with {len(documents)} documents")
+
+            if not self.chunks:
                 raise ValueError("No documents to add to collection")
 
         except Exception as e:

@@ -1,4 +1,4 @@
-.PHONY: help install install-dev run example test clean lint format download-data script setup-chromadb compare basic-rag meve-rag simple-compare
+.PHONY: help install install-dev run example test clean lint format download-data download-wikipedia script setup-chromadb compare basic-rag meve-rag simple-compare wikipedia wikipedia-simple
 
 help:
 	@echo "Usage: make [target]"
@@ -7,11 +7,6 @@ help:
 	@echo "  install        Install dependencies"
 	@echo "  install-dev    Install with dev dependencies"
 	@echo "  run            Run MeVe engine"
-	@echo "  example        Run basic example"
-	@echo "  compare        Compare Basic RAG vs MeVe RAG with detailed metrics"
-	@echo "  simple-compare Simple side-by-side comparison (clean output)"
-	@echo "  basic-rag      Run Basic RAG example"
-	@echo "  meve-rag       Run MeVe RAG example"
 	@echo "  test           Run all tests"
 	@echo "  clean          Remove cache files"
 	@echo "  lint           Run ruff linter"
@@ -26,21 +21,6 @@ install-dev:
 
 run:
 	uv run python example/meve.example.py
-
-example:
-	uv run python examples/basic_usage.py
-
-compare:
-	uv run python examples/compare_rag.py
-
-simple-compare:
-	uv run python examples/simple_compare.py
-
-basic-rag:
-	uv run python examples/basic_rag.py
-
-meve-rag:
-	uv run python examples/meve_rag.py
 
 test:
 	uv run pytest __tests__/ -v

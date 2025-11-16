@@ -1,0 +1,381 @@
+{
+  "timestamp": "2025-11-17T01:54:22.987927",
+  "collection": "wik_dataset",
+  "total_questions": 10,
+  "results": [
+    {
+      "question": "Who is Aristotle and what is he known for?",
+      "context": "Context 1:\nArticle: Aristotle\n\nAristotle (;  Aristotélēs, ; 384–322 BC) was an Ancient Greek philosopher and polymath. His writings cover a broad range of subjects spanning the natural sciences, philosophy, linguistics, economics, politics, psychology and the arts. As the founder of the Peripatetic school of philosophy in the Lyceum in Athens, he began the wider Aristotelian tradition that followed, which set the groundwork for the development of modern science.\n\nLittle is known about Aristotle's life.\n\n---\n\nContext 2:\nt Dante called him \"the master of those who know\". His works contain the earliest known formal study of logic, and were studied by medieval scholars such as Peter Abelard and Jean Buridan. Aristotle's influence on logic continued well into the 19th century. In addition, his ethics, though always influential, gained renewed interest with the modern advent of virtue ethics.\n\nLife \nIn general, the details of Aristotle's life are not well-established.\n\n---\n\nContext 3:\nrter scope, it can be considered superior to epic. Aristotle was a keen systematic collector of riddles, folklore, and proverbs; he and his school had a special interest in the riddles of the Delphic Oracle and studied the fables of Aesop.\n\nTransmission \n\nMore than 2300 years after his death, Aristotle remains one of the most influential people who ever lived. He contributed to almost every field of human knowledge then in existence, and he was the founder of many new fields.\n\n---\n\nContext 4:\nscience.\n\nLittle is known about Aristotle's life. He was born in the city of Stagira in northern Greece during the Classical period. His father, Nicomachus, died when Aristotle was a child, and he was brought up by a guardian. At 17 or 18 he joined Plato's Academy in Athens and remained there till the age of 37 (). Shortly after Plato died, Aristotle left Athens and, at the request of Philip II of Macedon, tutored his son Alexander the Great beginning in 343 BC.\n\n---\n\nContext 5:\nstence, and he was the founder of many new fields. According to the philosopher Bryan Magee, \"it is doubtful whether any human being has ever known as much as he did\".",
+      "sources": [
+        {
+          "doc_id": "308_chunk_0",
+          "title": "Aristotle",
+          "relevance_score": 0.9992796778678894,
+          "token_count": 114
+        },
+        {
+          "doc_id": "308_chunk_6",
+          "title": "Unknown",
+          "relevance_score": 0.9835347533226013,
+          "token_count": 93
+        },
+        {
+          "doc_id": "308_chunk_123",
+          "title": "Unknown",
+          "relevance_score": 0.9936612844467163,
+          "token_count": 107
+        },
+        {
+          "doc_id": "308_chunk_1",
+          "title": "Unknown",
+          "relevance_score": 0.9889879822731018,
+          "token_count": 105
+        },
+        {
+          "doc_id": "308_chunk_124_truncated",
+          "title": "Unknown",
+          "relevance_score": 0.9988760352134705,
+          "token_count": 38
+        }
+      ],
+      "total_chunks": 5,
+      "total_tokens": 457
+    },
+    {
+      "question": "What is Albert Einstein's theory of relativity?",
+      "context": "Context 1:\nArticle: Albert Einstein\n\nAlbert Einstein ( ; ; 14 March 1879 – 18 April 1955) was a German-born theoretical physicist who is widely held to be one of the greatest and most influential scientists of all time. Best known for developing the theory of relativity, Einstein also made important contributions to quantum mechanics, and was thus a central figure in the revolutionary reshaping of the scientific understanding of nature that modern physics accomplished in the first decades of the twentieth\n\n---\n\nContext 2:\nterms of kinematics (the study of moving bodies). In 1908, Hermann Minkowski reinterpreted special relativity in geometric terms as a theory of spacetime. Einstein adopted Minkowski's formalism in his 1915 general theory of relativity.\n\nGeneral relativity\n\nGeneral relativity and the equivalence principle \n\nGeneral relativity (GR) is a theory of gravitation that was developed by Einstein between 1907 and 1915.\n\n---\n\nContext 3:\nknown as Einstein's special theory of relativity.\n\nThis paper predicted that, when measured in the frame of a relatively moving observer, a clock carried by a moving body would appear to slow down, and the body itself would contract in its direction of motion. This paper also argued that the idea of a luminiferous aether—one of the leading theoretical entities in physics at the time—was superfluous.\n\n---\n\nContext 4:\ni. . Foreword originally written in April 1953.\n . The chasing a light beam thought experiment is described on pages 48–51.\n\nSee also \n\n Albert Einstein House in Princeton\n Einstein family\n Einstein notation\n The Einstein Theory of Relativity, an educational film\n Frist Campus Center at Princeton University room 302 is associated with Einstein. (The center was once the Palmer Physical Laboratory.\n\n---\n\nContext 5:\nt') theory was the result of these investigations. As its name suggests, it was a sketch of a theory, less elegant and more difficult than general relativity, with the equations of motion supplemented by additional gauge fixing conditions. After more than two years of intensive work, Einstein realized that the hole argument was mistaken and abandoned the theory in November 1915.",
+      "sources": [
+        {
+          "doc_id": "736_chunk_0",
+          "title": "Albert Einstein",
+          "relevance_score": 0.9992545247077942,
+          "token_count": 92
+        },
+        {
+          "doc_id": "736_chunk_144",
+          "title": "Unknown",
+          "relevance_score": 0.9958966970443726,
+          "token_count": 88
+        },
+        {
+          "doc_id": "736_chunk_142",
+          "title": "Unknown",
+          "relevance_score": 0.9977282881736755,
+          "token_count": 83
+        },
+        {
+          "doc_id": "736_chunk_216",
+          "title": "Unknown",
+          "relevance_score": 0.9639008045196533,
+          "token_count": 81
+        },
+        {
+          "doc_id": "736_chunk_153",
+          "title": "Unknown",
+          "relevance_score": 0.9577488303184509,
+          "token_count": 69
+        }
+      ],
+      "total_chunks": 5,
+      "total_tokens": 413
+    },
+    {
+      "question": "What are the main contributions of Aristotle to science?",
+      "context": "Context 1:\nstence, and he was the founder of many new fields. According to the philosopher Bryan Magee, \"it is doubtful whether any human being has ever known as much as he did\".\n\nAmong countless other achievements, Aristotle was the founder of formal logic, pioneered the study of zoology, and left every future scientist and philosopher in his debt through his contributions to the scientific method.\n\n---\n\nContext 2:\nmachean Ethics, Politics, On the Soul and Poetics. Aristotle studied and made significant contributions to \"logic, metaphysics, mathematics, physics, biology, botany, ethics, politics, agriculture, medicine, dance, and theatre.\"\n\nNear the end of his life, Alexander and Aristotle became estranged over Alexander's relationship with Persia and Persians.\n\n---\n\nContext 3:\n, Trafford Publishing, .\n \n Bolotin, David (1998). An Approach to Aristotle's Physics: With Particular Attention to the Role of His Manner of Writing. Albany: SUNY Press. A contribution to our understanding of how to read Aristotle's scientific works.\n Burnyeat, Myles F. et al. (1979). Notes on Book Zeta of Aristotle's Metaphysics. Oxford: Sub-faculty of Philosophy.\n \n \n Code, Alan (1995). Potentiality in Aristotle's Science and Metaphysics, Pacific Philosophical Quarterly 76.\n\n---\n\nContext 4:\nrter scope, it can be considered superior to epic. Aristotle was a keen systematic collector of riddles, folklore, and proverbs; he and his school had a special interest in the riddles of the Delphic Oracle and studied the fables of Aesop.\n\nTransmission \n\nMore than 2300 years after his death, Aristotle remains one of the most influential people who ever lived. He contributed to almost every field of human knowledge then in existence, and he was the founder of many new fields.",
+      "sources": [
+        {
+          "doc_id": "308_chunk_124",
+          "title": "Unknown",
+          "relevance_score": 0.9985222220420837,
+          "token_count": 78
+        },
+        {
+          "doc_id": "308_chunk_16",
+          "title": "Unknown",
+          "relevance_score": 0.9983847141265869,
+          "token_count": 74
+        },
+        {
+          "doc_id": "308_chunk_165",
+          "title": "Unknown",
+          "relevance_score": 0.9798675775527954,
+          "token_count": 120
+        },
+        {
+          "doc_id": "308_chunk_123",
+          "title": "Unknown",
+          "relevance_score": 0.9588792324066162,
+          "token_count": 107
+        }
+      ],
+      "total_chunks": 4,
+      "total_tokens": 379
+    },
+    {
+      "question": "Explain the concept of anatomy and its history",
+      "context": "Context 1:\nnown as histology, and also in the study of cells.\n\nThe history of anatomy is characterized by a progressive understanding of the functions of the organs and structures of the human body. Methods have also improved dramatically, advancing from the examination of animals by dissection of carcasses and cadavers (corpses) to 20th-century medical imaging techniques, including X-ray, ultrasound, and magnetic resonance imaging.\n\n---\n\nContext 2:\nArticle: Anatomy\n\nAnatomy () is the branch of biology concerned with the study of the structure of organisms and their parts. Anatomy is a branch of natural science that deals with the structural organization of living things. It is an old science, having its beginnings in prehistoric times.\n\n---\n\nContext 3:\nience, having its beginnings in prehistoric times. Anatomy is inherently tied to developmental biology, embryology, comparative anatomy, evolutionary biology, and phylogeny, as these are the processes by which anatomy is generated, both over immediate and long-term timescales. Anatomy and physiology, which study the structure and function of organisms and their parts respectively, make a natural pair of related disciplines, and are often studied together.\n\n---\n\nContext 4:\nX-ray, ultrasound, and magnetic resonance imaging.\n\nEtymology and definition \n\nDerived from the Greek  anatomē \"dissection\" (from  anatémnō \"I cut up, cut open\" from ἀνά aná \"up\", and τέμνω témnō \"I cut\"), anatomy is the scientific study of the structure of organisms including their systems, organs and tissues. It includes the appearance and position of the various parts, the materials from which they are composed, and their relationships with other parts.",
+      "sources": [
+        {
+          "doc_id": "674_chunk_4",
+          "title": "Unknown",
+          "relevance_score": 0.997119665145874,
+          "token_count": 86
+        },
+        {
+          "doc_id": "674_chunk_0",
+          "title": "Anatomy",
+          "relevance_score": 0.9707683324813843,
+          "token_count": 59
+        },
+        {
+          "doc_id": "674_chunk_1",
+          "title": "Unknown",
+          "relevance_score": 0.8669091463088989,
+          "token_count": 85
+        },
+        {
+          "doc_id": "674_chunk_5",
+          "title": "Unknown",
+          "relevance_score": 0.7153865098953247,
+          "token_count": 119
+        }
+      ],
+      "total_chunks": 4,
+      "total_tokens": 349
+    },
+    {
+      "question": "What is the role of an astronomer?",
+      "context": "Context 1:\nArticle: Astronomer\n\nAn astronomer is a scientist in the field of astronomy who focuses their studies on a specific question or field outside the scope of Earth. They observe astronomical objects such as stars, planets, moons, comets and galaxies – in either observational (by analyzing the data) or theoretical astronomy. Examples of topics or fields astronomers study include planetary science, solar astronomy, the origin or evolution of stars, or the formation of galaxies.\n\n---\n\nContext 2:\nemployed by research institutions or universities. They spend the majority of their time working on research, although they quite often have other duties such as teaching, building instruments, or aiding in the operation of an observatory.\n\nThe American Astronomical Society, which is the major organization of professional astronomers in North America, has approximately 7,000 members.\n\n---\n\nContext 3:\nevolution of stars, or the formation of galaxies. A related but distinct subject is physical cosmology, which studies the Universe as a whole.\n\nTypes\nAstronomers usually fall under either of two main types: observational and theoretical. Observational astronomers make direct observations of celestial objects and analyze the data. In contrast, theoretical astronomers create and investigate models of things that cannot be observed.\n\n---\n\nContext 4:\nthe differences between them using physical laws. Today, that distinction has mostly disappeared and the terms \"astronomer\" and \"astrophysicist\" are interchangeable. Professional astronomers are highly educated individuals who typically have a PhD in physics or astronomy and are employed by research institutions or universities.\n\n---\n\nContext 5:\nestigate models of things that cannot be observed. Because it takes millions to billions of years for a system of stars or a galaxy to complete a life cycle, astronomers must observe snapshots of different systems at unique points in their evolution to determine how they form, evolve, and die. They use this data to create models or simulations to theorize how different celestial objects work.\n\n---\n\nContext 6:\nraphic plates were a common method of observation. Modern astronomers spend relatively little time at telescopes usually just a few weeks per year. Analysis of observed phenomena, along with making predictions as to the causes of what they observe, takes the majority of observational astronomers' time.\n\nAstronomers who serve as faculty spend much of their time teaching undergraduate and graduate classes.",
+      "sources": [
+        {
+          "doc_id": "580_chunk_0",
+          "title": "Astronomer",
+          "relevance_score": 0.9982016086578369,
+          "token_count": 89
+        },
+        {
+          "doc_id": "580_chunk_5",
+          "title": "Unknown",
+          "relevance_score": 0.98346346616745,
+          "token_count": 69
+        },
+        {
+          "doc_id": "580_chunk_1",
+          "title": "Unknown",
+          "relevance_score": 0.9478626251220703,
+          "token_count": 79
+        },
+        {
+          "doc_id": "580_chunk_4",
+          "title": "Unknown",
+          "relevance_score": 0.7321460247039795,
+          "token_count": 57
+        },
+        {
+          "doc_id": "580_chunk_2",
+          "title": "Unknown",
+          "relevance_score": 0.5667963027954102,
+          "token_count": 74
+        },
+        {
+          "doc_id": "580_chunk_8",
+          "title": "Unknown",
+          "relevance_score": 0.47366204857826233,
+          "token_count": 72
+        }
+      ],
+      "total_chunks": 6,
+      "total_tokens": 440
+    },
+    {
+      "question": "What are the Academy Awards and when did they start?",
+      "context": "Context 1:\ns often used to promote the television broadcast).\n\nThe Academy Awards is the world's longest-running awards show televised live from the U.S. to all time zones in North America and worldwide, and gathers billions of viewers elsewhere throughout the world. The Oscars were first televised in 1953 by NBC, which continued to broadcast the event until 1960, when ABC took over, televising the festivities (including the first color broadcast of the event in 1966) through 1970.\n\n---\n\nContext 2:\nWaterhouse) since the 7th Academy Awards in 1935. The firm mails the ballots of eligible nominees to members of the Academy in December to reflect the previous eligible year with a due date sometime in January of the next year, then tabulates the votes in a process that takes thousands of hours.\n\nAll AMPAS members must be invited to join by the Board of Governors, on behalf of Academy Branch Executive Committees.\n\n---\n\nContext 3:\nrd and the Biltmore Hotel in downtown Los Angeles.\n\nGrauman's Chinese Theatre in Hollywood then hosted the awards from 1944 to 1946, followed by the Shrine Auditorium in Los Angeles from 1947 to 1948. The 21st Academy Awards in 1949 were held at the Academy Award Theatre at what had been the Academy's headquarters on Melrose Avenue in Hollywood.\n\nFrom 1950 to 1960, the awards were presented at Hollywood's Pantages Theatre.\n\n---\n\nContext 4:\nally receiving the films and ballots in the mail). Furthermore, a January ceremony on Sunday would clash with National Football League playoff games. In 2018, the Academy announced that the ceremony would be moved from late February to mid February beginning with the 92nd Academy Awards in 2020.\n\nOriginally scheduled for April 8, 1968, the 40th Academy Awards ceremony was postponed for two days, because of the assassination of Dr. Martin Luther King, Jr.\n\n---\n\nContext 5:\n, which was thus not the ad-lib it appeared to be.\n\nThe 74th Academy Awards, held in 2002, presented the first Academy Award for Best Animated Feature.\n\nFrom 1973 to 2020 and since 2022, all Academy Awards ceremonies have ended with the Academy Award for Best Picture. For 2021, this tradition was broken as the ceremony ended with the Academy Award for Best Actor.",
+      "sources": [
+        {
+          "doc_id": "324_chunk_66",
+          "title": "Unknown",
+          "relevance_score": 0.9981239438056946,
+          "token_count": 94
+        },
+        {
+          "doc_id": "324_chunk_40",
+          "title": "Unknown",
+          "relevance_score": 0.9696804881095886,
+          "token_count": 86
+        },
+        {
+          "doc_id": "324_chunk_91",
+          "title": "Unknown",
+          "relevance_score": 0.9948081374168396,
+          "token_count": 91
+        },
+        {
+          "doc_id": "324_chunk_75",
+          "title": "Unknown",
+          "relevance_score": 0.964548647403717,
+          "token_count": 89
+        },
+        {
+          "doc_id": "324_chunk_11",
+          "title": "Unknown",
+          "relevance_score": 0.9963240623474121,
+          "token_count": 79
+        }
+      ],
+      "total_chunks": 5,
+      "total_tokens": 439
+    },
+    {
+      "question": "What is agricultural science and what does it study?",
+      "context": "Context 1:\nArticle: Agricultural science\n\nAgricultural science (or agriscience for short) is a broad multidisciplinary field of biology that encompasses the parts of exact, natural, economic and social sciences that are used in the practice and understanding of agriculture. Professionals of the agricultural science are called agricultural scientists or agriculturists.\n\n---\n\nContext 2:\ngland, some of which are still running as of 2018.\n\nIn the United States, a scientific revolution in agriculture began with the Hatch Act of 1887, which used the term \"agricultural science\". The Hatch Act was driven by farmers' interest in knowing the constituents of early artificial fertilizer. The Smith–Hughes Act of 1917 shifted agricultural education back to its vocational roots, but the scientific foundation had been built.\n\n---\n\nContext 3:\n, including the application of agronomic research.\nAgronomy is research and development related to studying and improving plant-based crops.\n\nSoil forming factors and soil degradation\nAgricultural sciences include research and development on:\n Improving agricultural productivity in terms of quantity and quality (e.g.\n\n---\n\nContext 4:\nLaurence Lush\n Gregor Mendel\n Louis Pasteur\n M. S. Swaminathan\n Jethro Tull\n Artturi Ilmari Virtanen\n Sewall Wright\n\nFields or related disciplines\n\nScope\nAgriculture, agricultural science, and agronomy are often confused. However, they cover different concepts:\nAgriculture is the set of activities that transform the environment for the production of animals and plants for human use. Agriculture concerns techniques, including the application of agronomic research.\n\n---\n\nContext 5:\nto agricultural resources and the environment (e.g. soil science, agroclimatology); biology of agricultural crops and animals (e.g. crop science, animal science and their included sciences, e.g. ruminant nutrition, farm animal welfare); such fields as agricultural economics and rural sociology; various disciplines encompassed in agricultural engineering.",
+      "sources": [
+        {
+          "doc_id": "572_chunk_0",
+          "title": "Agricultural science",
+          "relevance_score": 0.999862551689148,
+          "token_count": 67
+        },
+        {
+          "doc_id": "572_chunk_2",
+          "title": "Unknown",
+          "relevance_score": 0.9465454816818237,
+          "token_count": 87
+        },
+        {
+          "doc_id": "572_chunk_5",
+          "title": "Unknown",
+          "relevance_score": 0.9704957604408264,
+          "token_count": 64
+        },
+        {
+          "doc_id": "572_chunk_4",
+          "title": "Unknown",
+          "relevance_score": 0.983755350112915,
+          "token_count": 112
+        },
+        {
+          "doc_id": "572_chunk_9",
+          "title": "Unknown",
+          "relevance_score": 0.975195586681366,
+          "token_count": 72
+        }
+      ],
+      "total_chunks": 5,
+      "total_tokens": 402
+    },
+    {
+      "question": "How did Einstein influence modern physics?",
+      "context": "Context 1:\ny, and E = mc2 that Einstein published in the Annalen der Physik scientific journal in 1905. These four works contributed substantially to the foundation of modern physics and changed views on space, time, and matter. The four papers are:\n\nStatistical mechanics\n\nThermodynamic fluctuations and statistical physics \n\nEinstein's first paper submitted in 1900 to Annalen der Physik was on capillary attraction.\n\n---\n\nContext 2:\nhe world, objecting that \"God does not play dice\". Secondly, he attempted to devise a unified field theory by generalizing his geometric theory of gravitation to include electromagnetism too. As a result, he became increasingly isolated from the mainstream of modern physics.\n\nBorn in the German Empire, Einstein moved to Switzerland in 1895, forsaking his German citizenship (as a subject of the Kingdom of Württemberg) the following year.\n\n---\n\nContext 3:\nain the quantization rules of Bohr and Sommerfeld. This paper would inspire Schrödinger's work of 1926.\n\nQuantum mechanics\n\nEinstein's objections to quantum mechanics \n\nEinstein played a major role in developing quantum theory, beginning with his 1905 paper on the photoelectric effect. However, he became displeased with modern quantum mechanics as it had evolved after 1925, despite its acceptance by other physicists.\n\n---\n\nContext 4:\nwn for its influence on the philosophy of science. In a 1999 poll of 130 leading physicists worldwide by the British journal Physics World, Einstein was ranked the greatest physicist of all time. His intellectual achievements and originality have made the word Einstein broadly synonymous with genius.\n\nIn 1905, a year sometimes described as his annus mirabilis (miracle year), Einstein published four groundbreaking papers.\n\n---\n\nContext 5:\nccomplished in the first decades of the twentieth century. His mass–energy equivalence formula , which arises from relativity theory, has been called \"the world's most famous equation\". He received the 1921 Nobel Prize in Physics \"for his services to theoretical physics, and especially for his discovery of the law of the photoelectric effect\", a pivotal step in the development of quantum theory. His work is also known for its influence on the philosophy of science.",
+      "sources": [
+        {
+          "doc_id": "736_chunk_136",
+          "title": "Unknown",
+          "relevance_score": 0.9982832670211792,
+          "token_count": 90
+        },
+        {
+          "doc_id": "736_chunk_6",
+          "title": "Unknown",
+          "relevance_score": 0.9963234663009644,
+          "token_count": 93
+        },
+        {
+          "doc_id": "736_chunk_185",
+          "title": "Unknown",
+          "relevance_score": 0.9958332180976868,
+          "token_count": 89
+        },
+        {
+          "doc_id": "736_chunk_2",
+          "title": "Unknown",
+          "relevance_score": 0.9919021725654602,
+          "token_count": 79
+        },
+        {
+          "doc_id": "736_chunk_1",
+          "title": "Unknown",
+          "relevance_score": 0.95915287733078,
+          "token_count": 91
+        }
+      ],
+      "total_chunks": 5,
+      "total_tokens": 442
+    },
+    {
+      "question": "What were Aristotle's views on logic and philosophy?",
+      "context": "Context 1:\nof the various philosophies existing prior to him. His teachings and methods of inquiry have had a significant global impact, and as a result, his philosophy has exerted an influence across the world and it continues to be a subject of contemporary philosophical discussion.\n\nAristotle's views profoundly shaped medieval scholarship.\n\n---\n\nContext 2:\nuntil 19th-century advances in mathematical logic. Kant stated in the Critique of Pure Reason that with Aristotle logic reached its completion.\n\nOrganon \n\nWhat is today called Aristotelian logic with its types of syllogism (methods of logical argument), Aristotle himself would have labelled \"analytics\". The term \"logic\" he reserved to mean dialectics. Most of Aristotle's work is probably not in its original form, because it was most likely edited by students and later lecturers.\n\n---\n\nContext 3:\nes ... evidence of an exceptionally forceful mind.\" Jonathan Barnes wrote that \"an account of Aristotle's intellectual afterlife would be little less than a history of European thought\".\n\nAristotle has been called the father of logic, biology, political science, zoology, embryology, natural law, scientific method, rhetoric, psychology, realism, criticism, individualism, teleology, and meteorology.\n\n---\n\nContext 4:\nebraic logic in his 1854 book The Laws of Thought. This gives logic a mathematical foundation with equations, enables it to solve equations as well as check validity, and allows it to handle a wider class of problems by expanding propositions of any number of terms, not just two.\n\nCharles Darwin regarded Aristotle as the most important contributor to the subject of biology.\n\n---\n\nContext 5:\nmachean Ethics, Politics, On the Soul and Poetics. Aristotle studied and made significant contributions to \"logic, metaphysics, mathematics, physics, biology, botany, ethics, politics, agriculture, medicine, dance, and theatre.\"\n\nNear the end of his life, Alexander and Aristotle became estranged over Alexander's relationship with Persia and Persians.",
+      "sources": [
+        {
+          "doc_id": "308_chunk_3",
+          "title": "Unknown",
+          "relevance_score": 0.9951091408729553,
+          "token_count": 60
+        },
+        {
+          "doc_id": "308_chunk_20",
+          "title": "Unknown",
+          "relevance_score": 0.9625242948532104,
+          "token_count": 105
+        },
+        {
+          "doc_id": "308_chunk_126",
+          "title": "Unknown",
+          "relevance_score": 0.9746229648590088,
+          "token_count": 80
+        },
+        {
+          "doc_id": "308_chunk_149",
+          "title": "Unknown",
+          "relevance_score": 0.9234538078308105,
+          "token_count": 73
+        },
+        {
+          "doc_id": "308_chunk_16",
+          "title": "Unknown",
+          "relevance_score": 0.9581300616264343,
+          "token_count": 74
+        }
+      ],
+      "total_chunks": 5,
+      "total_tokens": 392
+    },
+    {
+      "question": "What is the history of the Academy Awards ceremony?",
+      "context": "Context 1:\nfor music – are modeled after the Academy Awards.\n\nHistory \nThe first Academy Awards presentation was held on May 16, 1929, at a private dinner function at The Hollywood Roosevelt Hotel with an audience of about 270 people.\n\nThe post-awards party was held at the Mayfair Hotel. The cost of guest tickets for that night's ceremony was $5 ($ at 2020 prices).\n\n---\n\nContext 2:\n, which was thus not the ad-lib it appeared to be.\n\nThe 74th Academy Awards, held in 2002, presented the first Academy Award for Best Animated Feature.\n\nFrom 1973 to 2020 and since 2022, all Academy Awards ceremonies have ended with the Academy Award for Best Picture. For 2021, this tradition was broken as the ceremony ended with the Academy Award for Best Actor.\n\n---\n\nContext 3:\nublication at 11:00 pm on the night of the awards. In 1940, the Los Angeles Times announced the winners before the ceremony began; as a result, the following year the Academy started using a sealed envelope to reveal the names of the winners.\n\nThe term \"Oscar\" is a registered trademark of the AMPAS; however, in the Italian language, it is used generically to refer to any award or award ceremony, regardless of which field.\n\n---\n\nContext 4:\nally receiving the films and ballots in the mail). Furthermore, a January ceremony on Sunday would clash with National Football League playoff games. In 2018, the Academy announced that the ceremony would be moved from late February to mid February beginning with the 92nd Academy Awards in 2020.\n\nOriginally scheduled for April 8, 1968, the 40th Academy Awards ceremony was postponed for two days, because of the assassination of Dr. Martin Luther King, Jr.\n\n---\n\nContext 5:\ns often used to promote the television broadcast).\n\nThe Academy Awards is the world's longest-running awards show televised live from the U.S. to all time zones in North America and worldwide, and gathers billions of viewers elsewhere throughout the world. The Oscars were first televised in 1953 by NBC, which continued to broadcast the event until 1960, when ABC took over, televising the festivities (including the first color broadcast of the event in 1966) through 1970.",
+      "sources": [
+        {
+          "doc_id": "324_chunk_3",
+          "title": "Unknown",
+          "relevance_score": 0.9987743496894836,
+          "token_count": 80
+        },
+        {
+          "doc_id": "324_chunk_11",
+          "title": "Unknown",
+          "relevance_score": 0.9870405793190002,
+          "token_count": 79
+        },
+        {
+          "doc_id": "324_chunk_5",
+          "title": "Unknown",
+          "relevance_score": 0.9762751460075378,
+          "token_count": 96
+        },
+        {
+          "doc_id": "324_chunk_75",
+          "title": "Unknown",
+          "relevance_score": 0.9402597546577454,
+          "token_count": 89
+        },
+        {
+          "doc_id": "324_chunk_66",
+          "title": "Unknown",
+          "relevance_score": 0.9937700629234314,
+          "token_count": 94
+        }
+      ],
+      "total_chunks": 5,
+      "total_tokens": 438
+    }
+  ]
+}
