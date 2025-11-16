@@ -2,3 +2,4 @@
 - [] improve LOGS
 - [] save logs and time for reference
 - [] Get a big RAG DATA
+- [] pass the DB path from parent 

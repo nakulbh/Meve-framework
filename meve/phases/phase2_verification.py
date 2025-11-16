@@ -10,15 +10,28 @@ from meve.utils import get_logger
 
 logger = get_logger(__name__)
 
-# Load cross-encoder model for relevance scoring
-cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+# Lazy load cross-encoder model for relevance scoring
+cross_encoder = None
+
+
+def _get_cross_encoder():
+    """Lazy load the cross-encoder model."""
+    global cross_encoder
+    if cross_encoder is None:
+        logger.info("Loading cross-encoder model...")
+        cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+        logger.info("Cross-encoder model loaded")
+    return cross_encoder
 
 
 def get_relevance_score(query_text: str, chunk_content: str) -> float:
     """Get actual relevance score using cross-encoder model."""
     try:
+        # Get the cross-encoder (lazy loading)
+        encoder = _get_cross_encoder()
+
         # Cross-encoders take query-document pairs and output relevance scores
-        score = cross_encoder.predict([(query_text, chunk_content)])
+        score = encoder.predict([(query_text, chunk_content)])
 
         # Handle different return types
         if isinstance(score, (list, tuple)):

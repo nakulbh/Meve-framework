@@ -1,5 +1,3 @@
-# meve/core/engine.py
-
 import json
 import os
 from typing import Dict, List, Tuple
@@ -29,6 +27,7 @@ class MeVeEngine:
         self.config = config
         self.vector_store = vector_store
         self.bm25_index = bm25_index
+        self.last_retrieved_chunks = []  # Store final chunks from last run
 
     def run(self, query_text: str) -> str:
 
@@ -69,6 +68,9 @@ class MeVeEngine:
 
         # --- Phase 5: Token Budgeting (Greedy Packing) ---
         final_context_string, final_chunks = execute_phase_5(prioritized_context, self.config)
+
+        # Store final chunks for metrics/analysis
+        self.last_retrieved_chunks = final_chunks
 
         # Final Output (The context passed to the LLM)
         logger.info("\n================= FINAL CONTEXT FOR LLM ==================")
