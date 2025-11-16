@@ -1,0 +1,30 @@
+# MeVe Framework - Production Configuration
+
+meve:
+  k_init: 20
+  tau_relevance: 0.7
+  n_min: 5
+  theta_redundancy: 0.90
+  t_max: 200
+
+models:
+  embedding_model: "all-MiniLM-L6-v2"
+  cross_encoder_model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  tokenizer_model: "gpt2"
+
+vector_db:
+  type: "chromadb"
+  persistent: true
+  collection_name: "meve_prod_chunks"
+  persist_directory: "data/chroma_db"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/meve_prod.log"
+
+# Production settings
+production:
+  batch_size: 100
+  enable_caching: true
+  metrics_enabled: true

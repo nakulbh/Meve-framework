@@ -8,6 +8,47 @@ wheels/
 
 # Virtual environments
 .venv
+venv/
+env/
 
-data/
+# Data and cache
+data/raw/*
+data/processed/*
+!data/.gitkeep
 chroma-data/
+.cache/
+*.db
+*.sqlite3
+
+# Logs
+logs/*.log
+!logs/.gitkeep
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+
+# Models (optional - uncomment if not caching models)
+# models/
+# *.bin
+# *.pt
+# *.pth
+
+
+TODO.md

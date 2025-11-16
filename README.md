@@ -12,7 +12,7 @@ Query → kNN Search → Verify → [Fallback?] → Prioritize → Budget → Re
 
 ```mermaid
 block-beta
-    columns 5
+    columns 5tests
     
     Query["Query Input"]
     

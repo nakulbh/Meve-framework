@@ -1,38 +1,43 @@
-.PHONY: help setup install run clean test lint format start
+.PHONY: help install install-dev run example test clean lint format download-data
 
 help:
-	@echo "MeVe Framework Commands:"
+	@echo "Usage: make [target]"
 	@echo ""
-	@echo "  make setup     - Install uv and dependencies"
-	@echo "  make install   - Install dependencies"
-	@echo "  make run       - Run MeVe engine"
-	@echo "  make clean     - Remove cache files"
-	@echo "  make test      - Run tests"
-	@echo "  make lint      - Run linting"
-	@echo "  make format    - Format code"
-	@echo "  make start     - Setup and run"
-
-setup:
-	@which uv > /dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
-	@$(MAKE) install
+	@echo "Targets:"
+	@echo "  install        Install dependencies"
+	@echo "  install-dev    Install with dev dependencies"
+	@echo "  run            Run MeVe engine"
+	@echo "  example        Run basic example"
+	@echo "  test           Run all tests"
+	@echo "  clean          Remove cache files"
+	@echo "  lint           Run ruff linter"
+	@echo "  format         Format code with black"
+	@echo "  download-data  Download HotpotQA dataset"
 
 install:
 	uv sync
 
-run:
-	uv run meve_engine.py
+install-dev:
+	uv sync --extra dev
 
-clean:
-	rm -rf __pycache__ services/__pycache__ .pytest_cache .mypy_cache
-	rm -f *.pyc */*.pyc chroma-data/*.sqlite3-*
+run:
+	uv run python main.py
+
+example:
+	uv run python examples/basic_usage.py
 
 test:
-	uv run pytest tests/ -v
+	uv run pytest __tests__/ -v
+
+clean:
+	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	rm -rf .pytest_cache .mypy_cache
 
 lint:
-	uv run ruff check .
+	@uv run ruff check . || echo "Run 'make install-dev' to install ruff"
 
 format:
-	uv run black .
+	@uv run black . || echo "Run 'make install-dev' to install black"
 
-start: setup run
+download-data:
+	uv run python scripts/download_data.py

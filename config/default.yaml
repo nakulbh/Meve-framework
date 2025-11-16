@@ -1,0 +1,35 @@
+# MeVe Framework - Default Configuration
+
+meve:
+  # Phase 1: kNN Search
+  k_init: 20
+
+  # Phase 2: Verification
+  tau_relevance: 0.5
+
+  # Phase 3: Fallback
+  n_min: 3
+
+  # Phase 4: Prioritization
+  theta_redundancy: 0.85
+
+  # Phase 5: Budgeting
+  t_max: 100
+
+# Model Configuration
+models:
+  embedding_model: "all-MiniLM-L6-v2"
+  cross_encoder_model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  tokenizer_model: "gpt2"
+
+# Vector DB Configuration
+vector_db:
+  type: "chromadb"
+  persistent: false
+  collection_name: "meve_chunks"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/meve.log"
