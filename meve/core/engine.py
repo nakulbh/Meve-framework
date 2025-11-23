@@ -125,7 +125,6 @@ class MeVeEngine:
         # --- Conditional Phase 3: Fallback Retrieval (BM25) ---
         # Logic: If |C_ver| < N_min, trigger fallback
         if len(verified_chunks) < self.config.n_min:
-
             # Use bm25_index if provided, otherwise use vector_store
             fallback_source = self.bm25_index if self.bm25_index else self.vector_store
             if fallback_source:
@@ -310,7 +309,6 @@ def setup_meve_data(
 # ----------------- EXECUTION -----------------
 
 if __name__ == "__main__":
-
     # Setup data and configuration
     vector_store, bm25_index, questions = setup_meve_data(data_dir="data", max_examples=50)
 

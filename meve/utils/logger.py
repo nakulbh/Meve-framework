@@ -258,7 +258,7 @@ class Logger:
             color = Colors.RED
 
         self.info(
-            f"{Indicators.TIME}{color}Timer '{label}': {duration*1000:.2f}ms{Colors.RESET}",
+            f"{Indicators.TIME}{color}Timer '{label}': {duration * 1000:.2f}ms{Colors.RESET}",
             {"duration_ms": duration * 1000, "label": label},
         )
         return duration

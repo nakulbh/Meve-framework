@@ -117,7 +117,9 @@ class VectorDBClient:
                 # Add batch to collection
                 if documents:
                     self.collection.add(documents=documents, metadatas=metadatas, ids=ids)
-                    logger.debug(f"Added batch {start_idx // batch_size + 1} with {len(documents)} documents")
+                    logger.debug(
+                        f"Added batch {start_idx // batch_size + 1} with {len(documents)} documents"
+                    )
 
             if not self.chunks:
                 raise ValueError("No documents to add to collection")

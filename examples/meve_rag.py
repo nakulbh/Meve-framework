@@ -42,7 +42,7 @@ class SimpleRAGSystem:
                 chunks=None,
                 is_persistent=True,
                 collection_name=self.collection_name,
-                load_existing=True
+                load_existing=True,
             )
 
             # Get the chunks from the client
@@ -65,12 +65,12 @@ class SimpleRAGSystem:
 
         # Create default config (you can customize these parameters)
         config = MeVeConfig(
-            k_init=20,      # Initial retrieval count
+            k_init=20,  # Initial retrieval count
             tau_relevance=0.3,  # Relevance threshold
-            n_min=2,        # Minimum verified docs
+            n_min=2,  # Minimum verified docs
             theta_redundancy=0.8,  # Redundancy threshold
-            lambda_mmr=0.5, # MMR lambda
-            t_max=400       # Token budget
+            lambda_mmr=0.5,  # MMR lambda
+            t_max=400,  # Token budget
         )
 
         try:
@@ -81,12 +81,13 @@ class SimpleRAGSystem:
             self.engine = MeVeEngine(
                 config=config,
                 vector_db_client=self.vector_db_client,  # Use ChromaDB client
-                bm25_index=bm25_index     # Use dict for BM25
+                bm25_index=bm25_index,  # Use dict for BM25
             )
             print("✅ MeVe engine initialized successfully")
         except Exception as e:
             print(f"❌ Failed to initialize MeVe engine: {e}")
             import traceback
+
             traceback.print_exc()
             self.engine = None
 
@@ -104,7 +105,7 @@ class SimpleRAGSystem:
             return {
                 "answer": "RAG system not properly initialized",
                 "context": [],
-                "metadata": {"error": "engine_not_initialized"}
+                "metadata": {"error": "engine_not_initialized"},
             }
 
         try:
@@ -127,7 +128,7 @@ class SimpleRAGSystem:
                         "content": chunk.content,
                         "doc_id": chunk.doc_id,
                         "title": "Unknown",  # Extract from content if available
-                        "source": "unknown"
+                        "source": "unknown",
                     }
                     for chunk in final_chunks
                 ],
@@ -137,9 +138,9 @@ class SimpleRAGSystem:
                     "config": {
                         "k_init": self.engine.config.k_init,
                         "tau_relevance": self.engine.config.tau_relevance,
-                        "t_max": self.engine.config.t_max
-                    }
-                }
+                        "t_max": self.engine.config.t_max,
+                    },
+                },
             }
 
         except Exception as e:
@@ -147,7 +148,7 @@ class SimpleRAGSystem:
             return {
                 "answer": f"Error processing question: {str(e)}",
                 "context": [],
-                "metadata": {"error": str(e)}
+                "metadata": {"error": str(e)},
             }
 
     def get_stats(self) -> Dict[str, Any]:
@@ -156,7 +157,7 @@ class SimpleRAGSystem:
             "collection_name": self.collection_name,
             "total_chunks": len(self.chunks),
             "engine_initialized": self.engine is not None,
-            "vector_db_initialized": self.vector_db_client is not None
+            "vector_db_initialized": self.vector_db_client is not None,
         }
 
     def run_batch_questions(self, questions: List[str]) -> None:
@@ -169,13 +170,15 @@ class SimpleRAGSystem:
 
             print(f"🤖 Answer: {result['answer']}")
 
-            if result['context']:
+            if result["context"]:
                 print(f"📚 Retrieved {len(result['context'])} relevant chunks")
             else:
                 print("📚 No relevant context found.")
 
-            meta = result['metadata']
-            print(f"📈 Stats: {meta.get('retrieved_chunks', 0)} chunks retrieved from {meta.get('total_chunks', 0)} total")
+            meta = result["metadata"]
+            print(
+                f"📈 Stats: {meta.get('retrieved_chunks', 0)} chunks retrieved from {meta.get('total_chunks', 0)} total"
+            )
             print("-" * 60)
 
 
@@ -196,7 +199,7 @@ def main():
     print(f"   Engine initialized: {stats['engine_initialized']}")
     print(f"   VectorDB initialized: {stats['vector_db_initialized']}")
 
-    if not stats['engine_initialized']:
+    if not stats["engine_initialized"]:
         print("\n❌ RAG system failed to initialize. Check ChromaDB collection.")
         print("💡 Run: make wiki-to-chromadb")
         return
@@ -212,7 +215,7 @@ def main():
         "How do magnets work?",
         "What is the theory of relativity?",
         "Who was Albert Einstein?",
-        "What is the periodic table?"
+        "What is the periodic table?",
     ]
 
     print("\n💡 Ask questions about history, science, physics, or general knowledge!")
@@ -223,11 +226,11 @@ def main():
         try:
             question = input("❓ Your question: ").strip()
 
-            if question.lower() in ['quit', 'exit', 'q']:
+            if question.lower() in ["quit", "exit", "q"]:
                 print("\n👋 Goodbye!")
                 break
 
-            if question.lower() == 'batch':
+            if question.lower() == "batch":
                 rag.run_batch_questions(sample_questions)
                 continue
 
@@ -241,18 +244,24 @@ def main():
             print(f"\n🤖 Answer: {result['answer']}")
 
             # Show context info
-            if result['context']:
+            if result["context"]:
                 print(f"\n📚 Retrieved {len(result['context'])} relevant chunks:")
-                for i, chunk in enumerate(result['context'][:3], 1):  # Show top 3
-                    title = chunk.get('title', 'Unknown')
-                    content_preview = chunk['content'][:100] + "..." if len(chunk['content']) > 100 else chunk['content']
+                for i, chunk in enumerate(result["context"][:3], 1):  # Show top 3
+                    title = chunk.get("title", "Unknown")
+                    content_preview = (
+                        chunk["content"][:100] + "..."
+                        if len(chunk["content"]) > 100
+                        else chunk["content"]
+                    )
                     print(f"   {i}. [{title}] {content_preview}")
             else:
                 print("\n📚 No relevant context found.")
 
             # Show metadata
-            meta = result['metadata']
-            print(f"\n📈 Stats: {meta.get('retrieved_chunks', 0)} chunks retrieved from {meta.get('total_chunks', 0)} total")
+            meta = result["metadata"]
+            print(
+                f"\n📈 Stats: {meta.get('retrieved_chunks', 0)} chunks retrieved from {meta.get('total_chunks', 0)} total"
+            )
 
             print("\n" + "-" * 60)
 

@@ -35,16 +35,12 @@ class SimpleRAGSystem:
             # Use the same persistence directory as the loading script
             script_dir = Path(__file__).parent
             chroma_path = script_dir.parent / "chroma"
-            
-            self.chroma_client = chromadb.PersistentClient(
-                path=str(chroma_path)
-            )
+
+            self.chroma_client = chromadb.PersistentClient(path=str(chroma_path))
 
             # Get the collection (it should already exist from the script)
             # Note: We don't need to specify embedding_function when just querying
-            self.collection = self.chroma_client.get_collection(
-                name=self.collection_name
-            )
+            self.collection = self.chroma_client.get_collection(name=self.collection_name)
 
             # Get collection count
             self.total_chunks = self.collection.count()
@@ -52,7 +48,7 @@ class SimpleRAGSystem:
 
             # Initialize encoder for querying
             print("Initializing sentence encoder...")
-            self.encoder = SentenceTransformer('all-MiniLM-L6-v2')
+            self.encoder = SentenceTransformer("all-MiniLM-L6-v2")
             print("✅ Encoder loaded successfully")
 
         except Exception as e:
@@ -81,35 +77,34 @@ class SimpleRAGSystem:
 
             # Query ChromaDB
             results = self.collection.query(
-                query_embeddings=[query_embedding],
-                n_results=min(self.top_k, self.total_chunks)
+                query_embeddings=[query_embedding], n_results=min(self.top_k, self.total_chunks)
             )
 
             # Format results
             retrieved_chunks = []
-            if results['documents'] and results['documents'][0]:
-                for i, (doc, metadata, distance) in enumerate(zip(
-                    results['documents'][0],
-                    results['metadatas'][0],
-                    results['distances'][0]
-                )):
+            if results["documents"] and results["documents"][0]:
+                for i, (doc, metadata, distance) in enumerate(
+                    zip(results["documents"][0], results["metadatas"][0], results["distances"][0])
+                ):
                     # Convert distance to similarity (ChromaDB returns L2 distance)
                     similarity = 1.0 / (1.0 + distance)
-                    
+
                     # Extract article title from content (format: "Article: Title\n\n...")
                     title = "Unknown"
                     if doc.startswith("Article: "):
                         title_end = doc.find("\n\n")
                         if title_end > 0:
                             title = doc[9:title_end]  # Skip "Article: "
-                    
-                    retrieved_chunks.append({
-                        'content': doc,
-                        'doc_id': metadata.get('doc_id', f'unknown_{i}'),
-                        'title': title,
-                        'source': 'wikipedia',
-                        'similarity': similarity
-                    })
+
+                    retrieved_chunks.append(
+                        {
+                            "content": doc,
+                            "doc_id": metadata.get("doc_id", f"unknown_{i}"),
+                            "title": title,
+                            "source": "wikipedia",
+                            "similarity": similarity,
+                        }
+                    )
 
             return retrieved_chunks
 
@@ -131,7 +126,7 @@ class SimpleRAGSystem:
             return {
                 "answer": "RAG system not properly initialized",
                 "context": [],
-                "metadata": {"error": "encoder_not_initialized"}
+                "metadata": {"error": "encoder_not_initialized"},
             }
 
         try:
@@ -143,7 +138,9 @@ class SimpleRAGSystem:
             # Build context string
             context_parts = []
             for i, chunk in enumerate(retrieved_chunks, 1):
-                context_parts.append(f"[{i}] {chunk['content']} (similarity: {chunk['similarity']:.3f})")
+                context_parts.append(
+                    f"[{i}] {chunk['content']} (similarity: {chunk['similarity']:.3f})"
+                )
 
             context_string = "\n\n".join(context_parts)
 
@@ -158,8 +155,8 @@ class SimpleRAGSystem:
                 "metadata": {
                     "total_chunks": self.total_chunks,
                     "retrieved_chunks": len(retrieved_chunks),
-                    "top_k": self.top_k
-                }
+                    "top_k": self.top_k,
+                },
             }
 
         except Exception as e:
@@ -167,7 +164,7 @@ class SimpleRAGSystem:
             return {
                 "answer": f"Error processing question: {str(e)}",
                 "context": [],
-                "metadata": {"error": str(e)}
+                "metadata": {"error": str(e)},
             }
 
     def get_stats(self) -> Dict[str, Any]:
@@ -176,7 +173,7 @@ class SimpleRAGSystem:
             "collection_name": self.collection_name,
             "total_chunks": self.total_chunks,
             "encoder_initialized": self.encoder is not None,
-            "chromadb_initialized": self.collection is not None
+            "chromadb_initialized": self.collection is not None,
         }
 
     def run_batch_questions(self, questions: List[str]) -> None:
@@ -188,13 +185,19 @@ class SimpleRAGSystem:
             result = self.answer_question(question)
 
             print(f"\n📚 Retrieved {len(result['context'])} relevant chunks:")
-            for j, chunk in enumerate(result['context'], 1):
-                preview = chunk['content'][:80] + "..." if len(chunk['content']) > 80 else chunk['content']
+            for j, chunk in enumerate(result["context"], 1):
+                preview = (
+                    chunk["content"][:80] + "..."
+                    if len(chunk["content"]) > 80
+                    else chunk["content"]
+                )
                 print(f"   {j}. [{chunk['title']}] {preview}")
                 print(f"      Similarity: {chunk['similarity']:.3f}")
 
-            meta = result['metadata']
-            print(f"\n📈 Stats: {meta.get('retrieved_chunks', 0)} chunks retrieved from {meta.get('total_chunks', 0)} total")
+            meta = result["metadata"]
+            print(
+                f"\n📈 Stats: {meta.get('retrieved_chunks', 0)} chunks retrieved from {meta.get('total_chunks', 0)} total"
+            )
             print("-" * 60)
 
 
@@ -215,7 +218,7 @@ def main():
     print(f"   Encoder initialized: {stats['encoder_initialized']}")
     print(f"   ChromaDB initialized: {stats['chromadb_initialized']}")
 
-    if not stats['chromadb_initialized']:
+    if not stats["chromadb_initialized"]:
         print("\n❌ RAG system failed to initialize. Check ChromaDB collection.")
         print("💡 Run: make wiki-to-chromadb")
         return
@@ -231,7 +234,7 @@ def main():
         "How do magnets work?",
         "What is the theory of relativity?",
         "Who was Albert Einstein?",
-        "What is the periodic table?"
+        "What is the periodic table?",
     ]
 
     print("\n💡 Ask questions about history, science, physics, or general knowledge!")
@@ -242,11 +245,11 @@ def main():
         try:
             question = input("❓ Your question: ").strip()
 
-            if question.lower() in ['quit', 'exit', 'q']:
+            if question.lower() in ["quit", "exit", "q"]:
                 print("\n👋 Goodbye!")
                 break
 
-            if question.lower() == 'batch':
+            if question.lower() == "batch":
                 rag.run_batch_questions(sample_questions)
                 continue
 
@@ -257,22 +260,30 @@ def main():
             result = rag.answer_question(question)
 
             # Display context
-            if result['context']:
+            if result["context"]:
                 print(f"\n📚 Retrieved {len(result['context'])} relevant chunks:")
-                for i, chunk in enumerate(result['context'], 1):
-                    title = chunk.get('title', 'Unknown')
-                    content_preview = chunk['content'][:100] + "..." if len(chunk['content']) > 100 else chunk['content']
-                    similarity = chunk.get('similarity', 0.0)
+                for i, chunk in enumerate(result["context"], 1):
+                    title = chunk.get("title", "Unknown")
+                    content_preview = (
+                        chunk["content"][:100] + "..."
+                        if len(chunk["content"]) > 100
+                        else chunk["content"]
+                    )
+                    similarity = chunk.get("similarity", 0.0)
                     print(f"   {i}. [{title}] {content_preview}")
                     print(f"      Similarity: {similarity:.3f}")
             else:
                 print("\n📚 No relevant context found.")
 
             # Show metadata
-            meta = result['metadata']
-            print(f"\n📈 Stats: {meta.get('retrieved_chunks', 0)} chunks retrieved from {meta.get('total_chunks', 0)} total")
+            meta = result["metadata"]
+            print(
+                f"\n📈 Stats: {meta.get('retrieved_chunks', 0)} chunks retrieved from {meta.get('total_chunks', 0)} total"
+            )
 
-            print("\n💡 Note: In a complete RAG system, these chunks would be passed to an LLM to generate a natural language answer.")
+            print(
+                "\n💡 Note: In a complete RAG system, these chunks would be passed to an LLM to generate a natural language answer."
+            )
             print("\n" + "-" * 60)
 
         except KeyboardInterrupt:

@@ -22,7 +22,7 @@ class QuestionAnsweringSystem:
         self.collection_name = collection_name
         self.engine = None
         self.vector_db_client = None
-        
+
         # Initialize the system
         self.initialize_system()
 
@@ -31,7 +31,7 @@ class QuestionAnsweringSystem:
         print("=" * 80)
         print("Initializing MeVe RAG System")
         print("=" * 80)
-        
+
         try:
             # Initialize VectorDBClient with existing collection
             print(f"Loading ChromaDB collection: {self.collection_name}")
@@ -39,20 +39,20 @@ class QuestionAnsweringSystem:
                 chunks=None,
                 is_persistent=True,
                 collection_name=self.collection_name,
-                load_existing=True
+                load_existing=True,
             )
-            
+
             chunks = self.vector_db_client.chunks
             print(f"✅ Loaded {len(chunks)} chunks from ChromaDB\n")
 
             # Create MeVe config
             config = MeVeConfig(
-                k_init=20,              # Initial retrieval count
-                tau_relevance=0.3,      # Relevance threshold
-                n_min=2,                # Minimum verified docs
-                theta_redundancy=0.8,   # Redundancy threshold
-                lambda_mmr=0.5,         # MMR lambda
-                t_max=500               # Token budget (increased for better answers)
+                k_init=20,  # Initial retrieval count
+                tau_relevance=0.3,  # Relevance threshold
+                n_min=2,  # Minimum verified docs
+                theta_redundancy=0.8,  # Redundancy threshold
+                lambda_mmr=0.5,  # MMR lambda
+                t_max=500,  # Token budget (increased for better answers)
             )
 
             # Convert chunks list to dict for BM25 index
@@ -60,25 +60,24 @@ class QuestionAnsweringSystem:
 
             # Initialize MeVe engine
             self.engine = MeVeEngine(
-                config=config,
-                vector_db_client=self.vector_db_client,
-                bm25_index=bm25_index
+                config=config, vector_db_client=self.vector_db_client, bm25_index=bm25_index
             )
             print("✅ MeVe engine initialized successfully\n")
 
         except Exception as e:
             print(f"❌ Failed to initialize system: {e}")
             import traceback
+
             traceback.print_exc()
             raise
 
     def answer_question(self, question: str) -> Dict[str, Any]:
         """
         Answer a single question using MeVe RAG.
-        
+
         Args:
             question: The question to answer
-            
+
         Returns:
             Dict containing the question, context, and metadata
         """
@@ -91,7 +90,7 @@ class QuestionAnsweringSystem:
 
         # Run MeVe pipeline
         final_context = self.engine.run(question)
-        
+
         # Get the chunks from the engine's last retrieval
         final_chunks = self.engine.last_retrieved_chunks
 
@@ -104,20 +103,22 @@ class QuestionAnsweringSystem:
                 title_end = chunk.content.find("\n")
                 if title_end > 0:
                     title = chunk.content[9:title_end].strip()
-            
-            sources.append({
-                "doc_id": chunk.doc_id,
-                "title": title,
-                "relevance_score": chunk.relevance_score,
-                "token_count": chunk.token_count
-            })
+
+            sources.append(
+                {
+                    "doc_id": chunk.doc_id,
+                    "title": title,
+                    "relevance_score": chunk.relevance_score,
+                    "token_count": chunk.token_count,
+                }
+            )
 
         result = {
             "question": question,
             "context": final_context,
             "sources": sources,
             "total_chunks": len(final_chunks),
-            "total_tokens": sum(chunk.token_count for chunk in final_chunks)
+            "total_tokens": sum(chunk.token_count for chunk in final_chunks),
         }
 
         print(f"\n{'─' * 80}")
@@ -130,38 +131,35 @@ class QuestionAnsweringSystem:
     def answer_questions(self, questions: List[str]) -> List[Dict[str, Any]]:
         """
         Answer multiple questions.
-        
+
         Args:
             questions: List of questions to answer
-            
+
         Returns:
             List of results for each question
         """
         results = []
-        
+
         for i, question in enumerate(questions, 1):
             print(f"\n{'#' * 80}")
             print(f"Processing Question {i}/{len(questions)}")
             print(f"{'#' * 80}")
-            
+
             try:
                 result = self.answer_question(question)
                 results.append(result)
             except Exception as e:
                 print(f"❌ Error answering question: {e}")
-                results.append({
-                    "question": question,
-                    "error": str(e),
-                    "context": None,
-                    "sources": []
-                })
-        
+                results.append(
+                    {"question": question, "error": str(e), "context": None, "sources": []}
+                )
+
         return results
 
     def save_results(self, results: List[Dict[str, Any]], output_file: str) -> None:
         """
         Save results to a JSON file.
-        
+
         Args:
             results: List of question-answer results
             output_file: Path to output file
@@ -173,10 +171,10 @@ class QuestionAnsweringSystem:
             "timestamp": datetime.now().isoformat(),
             "collection": self.collection_name,
             "total_questions": len(results),
-            "results": results
+            "results": results,
         }
 
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(output_data, f, indent=2, ensure_ascii=False)
 
         print(f"\n{'=' * 80}")
@@ -186,7 +184,7 @@ class QuestionAnsweringSystem:
     def create_readable_report(self, results: List[Dict[str, Any]], output_file: str) -> None:
         """
         Create a human-readable text report.
-        
+
         Args:
             results: List of question-answer results
             output_file: Path to output file
@@ -194,7 +192,7 @@ class QuestionAnsweringSystem:
         output_path = Path(output_file)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write("=" * 80 + "\n")
             f.write("MeVe RAG System - Question Answering Report\n")
             f.write("=" * 80 + "\n\n")
@@ -213,11 +211,13 @@ class QuestionAnsweringSystem:
 
                 f.write("RETRIEVED CONTEXT:\n")
                 f.write("-" * 80 + "\n")
-                f.write(result['context'] + "\n")
+                f.write(result["context"] + "\n")
                 f.write("-" * 80 + "\n\n")
 
-                f.write(f"SOURCES ({result['total_chunks']} chunks, {result['total_tokens']} tokens):\n")
-                for j, source in enumerate(result['sources'], 1):
+                f.write(
+                    f"SOURCES ({result['total_chunks']} chunks, {result['total_tokens']} tokens):\n"
+                )
+                for j, source in enumerate(result["sources"], 1):
                     f.write(f"  {j}. {source['title']}\n")
                     f.write(f"     - Relevance: {source['relevance_score']:.3f}\n")
                     f.write(f"     - Tokens: {source['token_count']}\n")
@@ -229,7 +229,7 @@ class QuestionAnsweringSystem:
 
 def main():
     """Main function to run the question answering system."""
-    
+
     # Define the questions
     questions = [
         "Who is Aristotle and what is he known for?",
@@ -241,7 +241,7 @@ def main():
         "What is agricultural science and what does it study?",
         "How did Einstein influence modern physics?",
         "What were Aristotle's views on logic and philosophy?",
-        "What is the history of the Academy Awards ceremony?"
+        "What is the history of the Academy Awards ceremony?",
     ]
 
     print("\n" + "=" * 80)
@@ -257,7 +257,7 @@ def main():
 
     # Save results
     result_dir = Path(__file__).parent.parent / "result"
-    
+
     # Save JSON results
     json_file = result_dir / "question_answers.json"
     qa_system.save_results(results, str(json_file))

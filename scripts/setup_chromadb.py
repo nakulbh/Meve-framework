@@ -140,7 +140,7 @@ class ChromaDBSetup:
             try:
                 collection.add(documents=documents, metadatas=metadatas, ids=ids)
             except Exception as e:
-                print(f"\n❌ Error adding batch {i//batch_size + 1}: {e}")
+                print(f"\n❌ Error adding batch {i // batch_size + 1}: {e}")
                 continue
 
         final_count = collection.count()
@@ -185,9 +185,9 @@ class ChromaDBSetup:
         ]
 
         for i, query_text in enumerate(test_queries[:num_test_queries], 1):
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"Query {i}: {query_text}")
-            print(f"{'='*60}")
+            print(f"{'=' * 60}")
 
             try:
                 results = collection.query(query_texts=[query_text], n_results=3)
@@ -210,7 +210,7 @@ class ChromaDBSetup:
     def get_collection_info(self):
         """Display information about the ChromaDB collection."""
         print("\n📊 ChromaDB Collection Information")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         if not os.path.exists(self.persist_directory):
             print(f"❌ ChromaDB storage not found at: {self.persist_directory}")
@@ -338,9 +338,9 @@ Examples:
     setup = ChromaDBSetup(persist_directory=args.persist_dir, collection_name=args.collection_name)
 
     # Execute requested operation
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("🚀 MeVe ChromaDB Setup")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     if args.mode == "init":
         setup.init_persistent_db()
@@ -357,9 +357,9 @@ Examples:
     elif args.mode == "clean":
         setup.clean_storage()
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("✅ Operation completed")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
 
 if __name__ == "__main__":

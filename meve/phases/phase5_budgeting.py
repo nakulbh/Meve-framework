@@ -136,9 +136,9 @@ def format_context_coherently(chunks: List[ContextChunk]) -> str:
     for i, chunk in enumerate(chunks):
         # Add document title/source if available
         if hasattr(chunk, "title") and chunk.title:
-            context_parts.append(f"Document {i+1} ({chunk.title}):")
+            context_parts.append(f"Document {i + 1} ({chunk.title}):")
         else:
-            context_parts.append(f"Context {i+1}:")
+            context_parts.append(f"Context {i + 1}:")
 
         # Add the content
         context_parts.append(chunk.content)

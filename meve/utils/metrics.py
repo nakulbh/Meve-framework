@@ -41,9 +41,9 @@ class RetrievalMetrics:
 
     def log_summary(self, logger) -> None:
         """Log a structured summary of metrics."""
-        logger.info(f"\n{'='*70}")
+        logger.info(f"\n{'=' * 70}")
         logger.info(f"📊 RETRIEVAL METRICS - {self.method.upper()}")
-        logger.info(f"{'='*70}")
+        logger.info(f"{'=' * 70}")
         logger.info(f"Query: {self.query}")
         logger.info(f"\n⏱️  Timing:")
         logger.info(f"   Total Time: {self.total_time:.2f}s")
@@ -81,7 +81,7 @@ class RetrievalMetrics:
         if len(self.retrieved_chunks) > 3:
             logger.info(f"   ... and {len(self.retrieved_chunks) - 3} more")
 
-        logger.info(f"{'='*70}\n")
+        logger.info(f"{'=' * 70}\n")
 
 
 @dataclass
@@ -94,14 +94,14 @@ class ComparisonMetrics:
 
     def log_comparison(self, logger) -> None:
         """Log side-by-side comparison."""
-        logger.info(f"\n{'='*70}")
+        logger.info(f"\n{'=' * 70}")
         logger.info(f"⚖️  COMPARISON: Basic RAG vs MeVe RAG")
-        logger.info(f"{'='*70}")
+        logger.info(f"{'=' * 70}")
         logger.info(f"Query: {self.query}\n")
 
         # Create comparison table
         logger.info(f"{'Metric':<30} {'Basic RAG':<20} {'MeVe RAG':<20}")
-        logger.info(f"{'-'*70}")
+        logger.info(f"{'-' * 70}")
 
         # Timing
         logger.info(
@@ -134,7 +134,7 @@ class ComparisonMetrics:
                 f"{'Budget Efficiency':<30} {'N/A':<20} {self.meve_metrics.budget_efficiency:<20.1f}%"
             )
 
-        logger.info(f"{'-'*70}")
+        logger.info(f"{'-' * 70}")
 
         # Winner analysis
         logger.info(f"\n🏆 Analysis:")
@@ -161,7 +161,7 @@ class ComparisonMetrics:
         ) * 100
         logger.info(f"   ⏱️  MeVe has {time_overhead:+.1f}% time overhead")
 
-        logger.info(f"{'='*70}\n")
+        logger.info(f"{'=' * 70}\n")
 
 
 class PerformanceTracker:

@@ -1260,6 +1260,7 @@ dependencies = [
     { name = "torch" },
     { name = "tqdm" },
     { name = "transformers" },
+    { name = "uvicorn" },
 ]
 
 [package.optional-dependencies]
@@ -1314,6 +1315,7 @@ requires-dist = [
     { name = "torch", specifier = ">=2.8.0" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "transformers", specifier = ">=4.56.2" },
+    { name = "uvicorn", specifier = ">=0.37.0" },
     { name = "uvicorn", marker = "extra == 'api'", specifier = ">=0.23.0" },
 ]
 provides-extras = ["dev", "mcp", "agents", "api", "all"]
