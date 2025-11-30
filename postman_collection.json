@@ -1,0 +1,349 @@
+{
+    "info": {
+        "name": "MeVe REST API",
+        "description": "5-phase RAG retrieval pipeline with configuration management, health monitoring, and detailed metrics",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Health & Status",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/health",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "health"
+                            ]
+                        },
+                        "description": "Get detailed system health status including vector DB and BM25 availability"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Status",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/status",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "status"
+                            ]
+                        },
+                        "description": "Get simplified status check"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Retrieval",
+            "item": [
+                {
+                    "name": "Retrieve Context",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"query\": \"What is photosynthesis?\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/retrieve",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "retrieve"
+                            ]
+                        },
+                        "description": "Execute the 5-phase retrieval pipeline for a query with default configuration"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Retrieve Context with Config Override",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"query\": \"What is photosynthesis?\",\n  \"config\": {\n    \"k_init\": 10,\n    \"tau_relevance\": 0.6,\n    \"n_min\": 2,\n    \"theta_redundancy\": 0.8,\n    \"lambda_mmr\": 0.7,\n    \"t_max\": 256\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/retrieve",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "retrieve"
+                            ]
+                        },
+                        "description": "Execute retrieval pipeline with custom configuration for this query only"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Request Metrics",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/retrieve/metrics/{{request_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "retrieve",
+                                "metrics",
+                                "{{request_id}}"
+                            ]
+                        },
+                        "description": "Retrieve stored metrics for a previous request. Replace {{request_id}} with the actual request ID from a retrieval response"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Configuration",
+            "item": [
+                {
+                    "name": "Get Configuration",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/config",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "config"
+                            ]
+                        },
+                        "description": "Get the current pipeline configuration"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Configuration",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"config\": {\n    \"k_init\": 25,\n    \"tau_relevance\": 0.45,\n    \"n_min\": 2,\n    \"theta_redundancy\": 0.80,\n    \"lambda_mmr\": 0.7,\n    \"t_max\": 1024\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/config",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "config"
+                            ]
+                        },
+                        "description": "Update pipeline configuration parameters. These changes apply to all subsequent queries"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Reset Configuration",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/config/reset",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "config",
+                                "reset"
+                            ]
+                        },
+                        "description": "Reset pipeline configuration to default values"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Data Sources",
+            "item": [
+                {
+                    "name": "Load Data Source",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"config\": {\n    \"collection_name\": \"my_docs\",\n    \"is_persistent\": true,\n    \"load_existing\": false\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/data-sources/load",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "data-sources",
+                                "load"
+                            ]
+                        },
+                        "description": "Load or create a ChromaDB collection. Set load_existing to true to load an existing collection"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Upload Chunks",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"chunks\": [\n    {\n      \"content\": \"Photosynthesis is a process used by plants, algae, and certain bacteria to harness energy from sunlight and turn it into chemical energy.\",\n      \"doc_id\": \"bio_101\"\n    },\n    {\n      \"content\": \"The photosynthetic process consists of two main stages: the light reactions and the Calvin cycle.\",\n      \"doc_id\": \"bio_102\"\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/data-sources/upload",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "data-sources",
+                                "upload"
+                            ]
+                        },
+                        "description": "Upload new chunks to the active data source. Chunks are added to both vector store and BM25 index"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Data Source Info",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/data-sources/info",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "data-sources",
+                                "info"
+                            ]
+                        },
+                        "description": "Get information about active data sources including count and status"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "List Chunks",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/data-sources/list?limit=10",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "data-sources",
+                                "list"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "doc_id",
+                                    "value": "bio",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "List chunks in active data source with optional filtering. Query parameters: limit (default 100), doc_id (optional filter)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "List Chunks with Filter",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/data-sources/list?limit=20&doc_id=bio",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "data-sources",
+                                "list"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "doc_id",
+                                    "value": "bio"
+                                }
+                            ]
+                        },
+                        "description": "List chunks filtered by document ID prefix with custom limit"
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000",
+            "type": "string"
+        },
+        {
+            "key": "request_id",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

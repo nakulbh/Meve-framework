@@ -1,0 +1,29 @@
+# MeVe Framework - Development Configuration
+
+meve:
+  k_init: 5
+  tau_relevance: 0.3
+  n_min: 2
+  theta_redundancy: 0.85
+  t_max: 100
+
+models:
+  embedding_model: "all-MiniLM-L6-v2"
+  cross_encoder_model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  tokenizer_model: "gpt2"
+
+vector_db:
+  type: "chromadb"
+  persistent: false
+  collection_name: "meve_dev_chunks"
+
+logging:
+  level: "DEBUG"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/meve_dev.log"
+
+# Development settings
+dev:
+  max_data_samples: 50
+  enable_profiling: true
+  cache_models: true

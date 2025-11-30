@@ -1,0 +1,373 @@
+================================================================================
+RAG System Comparison Report
+Simple RAG vs MeVe RAG
+================================================================================
+
+Generated: 2025-11-17 02:04:25
+Total Questions: 10
+
+================================================================================
+SUMMARY STATISTICS
+================================================================================
+
+Simple RAG:
+  Average retrieval time: 0.016s
+  Average chunks retrieved: 5.0
+  Total chunks: 50
+
+MeVe RAG:
+  Average retrieval time: 1.710s
+  Average chunks retrieved: 4.9
+  Average tokens per query: 415.1
+  Total chunks: 49
+  Total tokens: 4151
+
+Comparison:
+  MeVe is 109.19x slower (due to 5-phase processing)
+  MeVe retrieves 0.98x chunks
+  MeVe provides token-budgeted context
+
+
+================================================================================
+DETAILED COMPARISON
+================================================================================
+
+================================================================================
+Question 1: Who is Aristotle and what is he known for?
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.014s
+
+Sources:
+  1. Aristotle (similarity: 0.794)
+  2. Unknown (similarity: 0.753)
+  3. Unknown (similarity: 0.750)
+  4. Unknown (similarity: 0.746)
+  5. Unknown (similarity: 0.745)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Tokens: 457, Time: 4.992s
+
+Sources:
+  1. Aristotle (relevance: 0.999, 114 tokens)
+  2. Unknown (relevance: 0.984, 93 tokens)
+  3. Unknown (relevance: 0.994, 107 tokens)
+  4. Unknown (relevance: 0.989, 105 tokens)
+  5. Unknown (relevance: 0.999, 38 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +4.978s (346.22x)
+Chunks: Simple=5, MeVe=5
+Overlap: 2 common articles
+  Aristotle, Unknown
+
+
+================================================================================
+Question 2: What is Albert Einstein's theory of relativity?
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.007s
+
+Sources:
+  1. Albert Einstein (similarity: 0.769)
+  2. Unknown (similarity: 0.746)
+  3. Unknown (similarity: 0.745)
+  4. Unknown (similarity: 0.741)
+  5. Unknown (similarity: 0.735)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Tokens: 413, Time: 1.340s
+
+Sources:
+  1. Albert Einstein (relevance: 0.999, 92 tokens)
+  2. Unknown (relevance: 0.996, 88 tokens)
+  3. Unknown (relevance: 0.998, 83 tokens)
+  4. Unknown (relevance: 0.964, 81 tokens)
+  5. Unknown (relevance: 0.958, 69 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +1.333s (194.14x)
+Chunks: Simple=5, MeVe=5
+Overlap: 2 common articles
+  Albert Einstein, Unknown
+
+
+================================================================================
+Question 3: What are the main contributions of Aristotle to science?
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.017s
+
+Sources:
+  1. Unknown (similarity: 0.739)
+  2. Unknown (similarity: 0.722)
+  3. Unknown (similarity: 0.710)
+  4. Aristotle (similarity: 0.704)
+  5. Unknown (similarity: 0.703)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 4, Tokens: 379, Time: 1.690s
+
+Sources:
+  1. Unknown (relevance: 0.999, 78 tokens)
+  2. Unknown (relevance: 0.998, 74 tokens)
+  3. Unknown (relevance: 0.980, 120 tokens)
+  4. Unknown (relevance: 0.959, 107 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +1.673s (100.77x)
+Chunks: Simple=5, MeVe=4
+Overlap: 1 common articles
+  Unknown
+
+
+================================================================================
+Question 4: Explain the concept of anatomy and its history
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.011s
+
+Sources:
+  1. Unknown (similarity: 0.829)
+  2. Anatomy (similarity: 0.825)
+  3. Unknown (similarity: 0.755)
+  4. Unknown (similarity: 0.754)
+  5. Unknown (similarity: 0.750)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 4, Tokens: 349, Time: 1.177s
+
+Sources:
+  1. Unknown (relevance: 0.997, 86 tokens)
+  2. Anatomy (relevance: 0.971, 59 tokens)
+  3. Unknown (relevance: 0.867, 85 tokens)
+  4. Unknown (relevance: 0.715, 119 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +1.167s (110.57x)
+Chunks: Simple=5, MeVe=4
+Overlap: 2 common articles
+  Anatomy, Unknown
+
+
+================================================================================
+Question 5: What is the role of an astronomer?
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.018s
+
+Sources:
+  1. Astronomer (similarity: 0.773)
+  2. Unknown (similarity: 0.712)
+  3. Unknown (similarity: 0.712)
+  4. Unknown (similarity: 0.697)
+  5. Unknown (similarity: 0.688)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 6, Tokens: 440, Time: 1.225s
+
+Sources:
+  1. Astronomer (relevance: 0.998, 89 tokens)
+  2. Unknown (relevance: 0.983, 69 tokens)
+  3. Unknown (relevance: 0.948, 79 tokens)
+  4. Unknown (relevance: 0.732, 57 tokens)
+  5. Unknown (relevance: 0.567, 74 tokens)
+  6. Unknown (relevance: 0.474, 72 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +1.207s (69.73x)
+Chunks: Simple=5, MeVe=6
+Overlap: 2 common articles
+  Astronomer, Unknown
+
+
+================================================================================
+Question 6: What are the Academy Awards and when did they start?
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.039s
+
+Sources:
+  1. Unknown (similarity: 0.755)
+  2. Academy Awards (similarity: 0.747)
+  3. Unknown (similarity: 0.735)
+  4. Unknown (similarity: 0.734)
+  5. Unknown (similarity: 0.734)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Tokens: 439, Time: 1.721s
+
+Sources:
+  1. Unknown (relevance: 0.998, 94 tokens)
+  2. Unknown (relevance: 0.970, 86 tokens)
+  3. Unknown (relevance: 0.995, 91 tokens)
+  4. Unknown (relevance: 0.965, 89 tokens)
+  5. Unknown (relevance: 0.996, 79 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +1.682s (44.10x)
+Chunks: Simple=5, MeVe=5
+Overlap: 1 common articles
+  Unknown
+
+
+================================================================================
+Question 7: What is agricultural science and what does it study?
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.013s
+
+Sources:
+  1. Agricultural science (similarity: 0.840)
+  2. Unknown (similarity: 0.766)
+  3. Unknown (similarity: 0.745)
+  4. Unknown (similarity: 0.739)
+  5. Unknown (similarity: 0.732)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Tokens: 402, Time: 1.232s
+
+Sources:
+  1. Agricultural science (relevance: 1.000, 67 tokens)
+  2. Unknown (relevance: 0.947, 87 tokens)
+  3. Unknown (relevance: 0.970, 64 tokens)
+  4. Unknown (relevance: 0.984, 112 tokens)
+  5. Unknown (relevance: 0.975, 72 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +1.219s (93.11x)
+Chunks: Simple=5, MeVe=5
+Overlap: 2 common articles
+  Agricultural science, Unknown
+
+
+================================================================================
+Question 8: How did Einstein influence modern physics?
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.019s
+
+Sources:
+  1. Albert Einstein (similarity: 0.762)
+  2. Unknown (similarity: 0.746)
+  3. Unknown (similarity: 0.742)
+  4. Unknown (similarity: 0.738)
+  5. Unknown (similarity: 0.728)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Tokens: 442, Time: 1.102s
+
+Sources:
+  1. Unknown (relevance: 0.998, 90 tokens)
+  2. Unknown (relevance: 0.996, 93 tokens)
+  3. Unknown (relevance: 0.996, 89 tokens)
+  4. Unknown (relevance: 0.992, 79 tokens)
+  5. Unknown (relevance: 0.959, 91 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +1.083s (56.56x)
+Chunks: Simple=5, MeVe=5
+Overlap: 1 common articles
+  Unknown
+
+
+================================================================================
+Question 9: What were Aristotle's views on logic and philosophy?
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.010s
+
+Sources:
+  1. Unknown (similarity: 0.753)
+  2. Unknown (similarity: 0.739)
+  3. Unknown (similarity: 0.733)
+  4. Aristotle (similarity: 0.725)
+  5. Unknown (similarity: 0.715)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Tokens: 392, Time: 1.422s
+
+Sources:
+  1. Unknown (relevance: 0.995, 60 tokens)
+  2. Unknown (relevance: 0.963, 105 tokens)
+  3. Unknown (relevance: 0.975, 80 tokens)
+  4. Unknown (relevance: 0.923, 73 tokens)
+  5. Unknown (relevance: 0.958, 74 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +1.412s (143.34x)
+Chunks: Simple=5, MeVe=5
+Overlap: 1 common articles
+  Unknown
+
+
+================================================================================
+Question 10: What is the history of the Academy Awards ceremony?
+================================================================================
+
+SIMPLE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Time: 0.009s
+
+Sources:
+  1. Unknown (similarity: 0.749)
+  2. Unknown (similarity: 0.743)
+  3. Unknown (similarity: 0.739)
+  4. Unknown (similarity: 0.735)
+  5. Unknown (similarity: 0.733)
+
+MEVE RAG:
+--------------------------------------------------------------------------------
+Chunks: 5, Tokens: 438, Time: 1.201s
+
+Sources:
+  1. Unknown (relevance: 0.999, 80 tokens)
+  2. Unknown (relevance: 0.987, 79 tokens)
+  3. Unknown (relevance: 0.976, 96 tokens)
+  4. Unknown (relevance: 0.940, 89 tokens)
+  5. Unknown (relevance: 0.994, 94 tokens)
+
+ANALYSIS:
+--------------------------------------------------------------------------------
+Time: MeVe +1.192s (138.67x)
+Chunks: Simple=5, MeVe=5
+Overlap: 1 common articles
+  Unknown
+
+
